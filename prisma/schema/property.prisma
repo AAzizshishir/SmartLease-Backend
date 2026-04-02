@@ -1,0 +1,10 @@
+model Property {
+  id          String   @id @default(uuid())
+  landlord_id String
+  name        String
+  address     String
+  city        String
+  total_units Int
+  description String?
+  created_at  DateTime @default(now())
+}
