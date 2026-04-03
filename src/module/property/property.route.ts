@@ -7,6 +7,7 @@ import {
   createPropertySchema,
   updatePropertySchema,
 } from "./property.validate";
+import { multerUpload } from "../../config/multer.config";
 
 const router = Router();
 
@@ -14,21 +15,31 @@ router.get("/all", propertyController.getAllProperties); // public route
 
 router.use(authMiddleware(Role.LANDLORD));
 
+// Create Property
 router.post(
   "/",
+  multerUpload.single("file"),
   validateRequest(createPropertySchema),
   propertyController.createProperty,
 );
+
+// get my properties (landlord properties)
 router.get("/", propertyController.getMyProperties);
 
-router.patch("/restore/:id", propertyController.restoreProperty);
+// restore property
+router.patch("/:id/restore", propertyController.restoreProperty);
 
+// get property by id
 router.get("/:id", propertyController.getPropertyById);
+
+// update property
 router.put(
-  "/:id",
+  "/update/:id",
   validateRequest(updatePropertySchema),
   propertyController.updateProperty,
 );
+
+// delete property
 router.delete("/:id", propertyController.deleteProperty);
 
 export const propertyRoutes = router;

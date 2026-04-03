@@ -6,11 +6,15 @@ import { StatusCodes } from "http-status-codes";
 
 // Create Property
 const createProperty = catchAsync(async (req: Request, res: Response) => {
-  const landlord_id = req?.user?.id; // verifyToken middleware থেকে আসবে
+  const landlord_id = req?.user?.id;
+  const payload = {
+    ...req.body,
+    image: req.file?.path,
+  };
 
   const property = await propertyService.createProperty(
     landlord_id as string,
-    req.body,
+    payload,
   );
 
   sendResponse(res, {
@@ -70,10 +74,14 @@ const getPropertyById = catchAsync(async (req: Request, res: Response) => {
 const updateProperty = catchAsync(async (req: Request, res: Response) => {
   const landlord_id = req?.user?.id;
   const { id } = req.params;
+  const payload = {
+    ...req.body,
+  };
+  console.log(payload);
   const property = await propertyService.updateProperty(
     id as string,
     landlord_id as string,
-    req.body,
+    payload,
   );
 
   sendResponse(res, {
