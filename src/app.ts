@@ -3,15 +3,15 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
-import { propertyRoutes } from "./module/property/property.route";
 import { notFound } from "./middleware/notFound";
 import { indexRoutes } from "./routes";
+import { envVariables } from "./config/env";
 
 const app: Application = express();
 
 app.use(
   cors({
-    origin: process.env.APP_URL || "http://localhost:3000",
+    origin: envVariables.APP_URL || "http://localhost:3000",
     credentials: true,
   }),
 );
