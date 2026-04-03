@@ -1,0 +1,43 @@
+
+model Payment {
+  id                  String        @id @default(uuid(7))
+  lease_id            String
+  tenant_id           String
+
+  type                PaymentType
+  amount              Decimal
+  late_fee            Decimal       @default(0)
+  total_amount        Decimal       // amount + late_fee
+
+  // কোন মাসের payment — "2025-02"
+  // security deposit-এ null হবে
+  billing_month       String?
+
+  due_date            DateTime
+  paid_at             DateTime?
+
+  status              PaymentStatus @default(pending)
+
+  // Stripe
+  stripe_payment_id   String?       // Stripe-এর transaction id
+  stripe_session_id   String?       // checkout session id
+
+  // landlord manually mark করতে পারবেন
+  // যেমন cash দিয়েছেন
+  is_manual           Boolean       @default(false)
+  manual_note         String?       
+
+  lease               Lease         @relation(fields: [lease_id], references: [id])
+  tenant              User          @relation("TenantPayments", fields: [tenant_id], references: [id])
+
+  created_at          DateTime      @default(now())
+  updated_at          DateTime      @updatedAt
+
+  // same lease-এ same মাসে দুটো rent payment হবে না
+  @@unique([lease_id, billing_month, type])
+  @@index([lease_id])
+  @@index([tenant_id])
+  @@index([status])
+  @@index([due_date])
+  @@map("payments")
+}

@@ -1,0 +1,41 @@
+
+model Notice {
+  id               String       @id @default(uuid(7))
+  landlord_id      String
+  property_id      String
+  unit_id          String?      // specific unit হলে, all tenants হলে nu
+  title            String
+  body             String
+  type             NoticeType   @default(general)
+  target           NoticeTarget @default(all_tenants)
+
+  effective_from   DateTime?
+
+  reads            NoticeRead[]
+
+  landlord         User         @relation("LandlordNotices", fields: [landlord_id], references: [id])
+  property         Property     @relation("PropertyNotices", fields: [property_id], references: [id])
+  unit             Unit?        @relation("UnitNotices",     fields: [unit_id], references: [id])
+
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
+    
+  @@index([property_id])
+  @@index([landlord_id])
+  @@map("notices")
+}
+
+// কোন tenant notice পড়েছেন সেটা track করা
+model NoticeRead {
+  id         String   @id @default(uuid(7))
+  notice_id  String
+  tenant_id  String
+
+  notice     Notice   @relation(fields: [notice_id], references: [id], onDelete: Cascade)
+  tenant     User     @relation("TenantNotices", fields: [tenant_id], references: [id])
+
+  read_at    DateTime @default(now())
+
+  @@unique([notice_id, tenant_id])  // একজন tenant একটা notice একবারই read করবেন
+  @@map("notice_reads")
+}

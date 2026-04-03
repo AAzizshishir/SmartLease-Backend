@@ -1,10 +1,22 @@
 model Property {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid(7))
   landlord_id String
   name        String
+  image       String?
   address     String
   city        String
+  type        PropertyType @default(apartment)
   total_units Int
   description String?
+
+  landlord    User     @relation(fields: [landlord_id], references: [id])
+  units       Unit[]
+  notices     Notice[] @relation("PropertyNotices")
+
   created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([landlord_id])
+  @@index([city])
+  @@map("properties")
 }

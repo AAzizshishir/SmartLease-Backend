@@ -1,0 +1,37 @@
+model LeaseApplication {
+  id                        String            @id @default(uuid(7))
+  unit_id                   String
+  tenant_id                 String
+
+  profession                String
+  monthly_income            Decimal   
+  work_place_address        String? 
+  num_occupants             Int           @default(1)  
+  has_pets                  Boolean       @default(false)
+
+  // documents
+  nid_url                   String?       
+  income_proof_url          String?      
+  preferred_move_in         DateTime          
+  message                   String?           
+  status                    LeaseApplicationStatus @default(pending)
+
+  rejection_reason          String?
+
+  expires_at                DateTime
+
+  reviewed_at               DateTime?         // landlord কখন দেখলেন
+
+  unit                      Unit              @relation(fields: [unit_id], references: [id])
+  tenant                    User              @relation(fields: [tenant_id], references: [id])
+  lease                     Lease?            
+
+  created_at                DateTime          @default(now())
+  updated_at                DateTime          @updatedAt
+
+
+  @@index([unit_id])
+  @@index([tenant_id])
+  @@index([status])
+  @@map("lease_applications")
+}

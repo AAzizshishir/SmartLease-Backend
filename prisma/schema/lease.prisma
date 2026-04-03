@@ -1,0 +1,54 @@
+
+
+model Lease {
+  id                        String        @id @default(uuid(7))
+  unit_id                   String
+  tenant_id                 String
+  landlord_id               String
+  application_id            String?       @unique  // কোন application থেকে এলো
+
+  // lease period
+  start_date                DateTime
+  end_date                  DateTime
+
+  // payment terms
+  monthly_rent              Decimal
+  payment_due_day           Int           @default(5) 
+  late_fee_after_days       Int           @default(5)  
+  late_fee_amount           Decimal       @default(0)
+
+  // deposit
+  security_deposit          Decimal       // monthly_rent × deposit_months
+  deposit_status            DepositStatus @default(pending)
+  deposit_paid_at           DateTime?
+  deposit_deadline          DateTime      // কতদিনের মধ্যে দিতে হবে
+  deposit_deduction         Decimal?      // lease শেষে কত কাটা হয়েছে
+  deposit_deduction_reason  String?
+  deposit_refunded_at       DateTime?
+
+  // status
+  status                    LeaseStatus   @default(pending_tenant)
+  confirmed_at              DateTime?     // tenant কখন confirm করলেন
+  terminated_at             DateTime?
+  termination_reason        String?
+
+  // document
+  document_url              String?       // signed lease document
+
+  // relations
+  unit                      Unit          @relation(fields: [unit_id], references: [id])
+  tenant                    User          @relation("TenantLeases", fields: [tenant_id], references: [id])
+  landlord                  User          @relation("LandlordLeases", fields: [landlord_id], references: [id])
+  application               LeaseApplication? @relation(fields: [application_id], references: [id])
+  payments                  Payment[]
+//   disputes                  Dispute[]
+
+  created_at                DateTime      @default(now())
+  updated_at                DateTime      @updatedAt
+
+  @@index([unit_id])
+  @@index([tenant_id])
+  @@index([landlord_id])
+  @@index([status])
+  @@map("leases")
+}

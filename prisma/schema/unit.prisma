@@ -1,0 +1,68 @@
+
+model Unit {
+  id                       String          @id @default(uuid(7))
+  property_id              String
+  unit_number              String          
+  floor                    Int
+
+  // type & size
+  type                     UnitType
+  furnishing_status        FurnishingStatus @default(unfurnished)
+  area_sqft                Decimal?
+
+  // rooms
+  bedrooms                 Int
+  bathrooms                Int
+  balconies                Int             @default(0)
+
+  // pricing
+  monthly_rent             Decimal
+  security_deposit_months  Int             @default(2)
+
+  // amenities - boolean flags
+  has_parking              Boolean         @default(false)
+  has_ac                   Boolean         @default(false)
+  has_lift                 Boolean         @default(false)
+  has_gas                  Boolean         @default(false)
+  has_generator            Boolean         @default(false)
+  has_water_supply         Boolean         @default(true)
+  is_pet_friendly          Boolean         @default(false)
+
+  // status
+  status                   UnitStatus      @default(vacant)
+  available_from           DateTime?      
+
+  // media
+  images                   UnitImage[]
+
+  // relations
+  property                 Property        @relation(fields: [property_id], references: [id])
+  applications             LeaseApplication[]
+  leases                   Lease[]
+  maintenance_tickets      MaintenanceTicket[]
+  notices                  Notice[]   @relation("UnitNotices")
+
+  created_at               DateTime        @default(now())
+  updated_at               DateTime        @updatedAt
+
+  @@unique([property_id, unit_number])
+  @@index([property_id])
+  @@index([status])
+  @@index([monthly_rent])
+  @@map("units")
+}
+
+model UnitImage {
+  id          String   @id @default(uuid(7))
+  unit_id     String
+  url         String
+  is_primary  Boolean  @default(false)  // thumbnail
+  order       Int      @default(0)       // image ordering
+
+  unit        Unit     @relation(fields: [unit_id], references: [id], onDelete: Cascade)
+
+  created_at  DateTime @default(now())
+
+  @@index([unit_id])
+  @@map("unit_images")
+}

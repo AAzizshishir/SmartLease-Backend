@@ -1,5 +1,125 @@
+// Enums for SmartLease application
+
+// User Roles
 enum Role {
   ADMIN
   LANDLORD
   TENANT
+}
+
+// Property
+enum PropertyType {
+  apartment
+  house
+  commercial
+}
+
+// Units
+enum UnitStatus {
+  vacant
+  occupied
+  maintenance 
+  reserved   
+}
+
+enum UnitType {
+  studio       // 1 room, no separate bedroom
+  one_bed
+  two_bed
+  three_bed
+  four_bed
+  penthouse
+}
+
+enum FurnishingStatus {
+  unfurnished
+  semi_furnished
+  fully_furnished
+}
+
+
+// Lease Application
+enum LeaseApplicationStatus {
+  pending       
+  approved      
+  rejected      
+  cancelled    
+  expired      
+}
+
+// Lease
+enum LeaseStatus {
+  pending_tenant    
+  active            
+  expired           
+  terminated        
+  cancelled        
+}
+
+enum DepositStatus {
+  pending          
+  paid             
+  waived            
+  refunded          
+  partially_refunded 
+  forfeited        
+}
+
+// Maintenance Tickets
+enum TicketStatus {
+  open          
+  assigned      
+  in_progress   
+  resolved      
+  closed       
+  cancelled    
+}
+
+enum TicketPriority {
+  low         
+  medium       
+  high         
+  urgent       
+}
+
+enum TicketCategory {
+  plumbing      
+  electrical    
+  gas
+  structural    
+  appliance     
+  pest_control 
+  cleaning      
+  other
+}
+
+// Notices
+enum NoticeType {
+  general        
+  maintenance    
+  rent_increase  
+  inspection      
+  lease_reminder 
+  emergency       // জরুরি — সাথে সাথে notification যাবে
+}
+
+enum NoticeTarget {
+  all_tenants     
+  specific_unit  
+}
+
+// Payments
+enum PaymentStatus {
+  pending       
+  paid          
+  late          
+  failed      
+  waived        
+}
+
+enum PaymentType {
+  rent          
+  security_deposit  
+  late_fee      
+  utility_bill     
 }

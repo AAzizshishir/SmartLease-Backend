@@ -1,0 +1,54 @@
+
+
+model MaintenanceTicket {
+  id            String          @id @default(uuid(7))
+  unit_id       String
+  tenant_id     String
+  assigned_to_name    String?  
+  assigned_to_phone   String?   
+  is_assigned         Boolean   @default(false)
+
+  title         String
+  description   String
+  category      TicketCategory
+  priority      TicketPriority  @default(medium)
+  status        TicketStatus    @default(open)
+
+  // tenant কবে চান ঠিক হোক
+  preferred_date DateTime?
+
+  // worker notes — কী করা হয়েছে
+  resolution_note String?
+
+  // timestamps
+  assigned_at   DateTime?
+  started_at    DateTime?
+  resolved_at   DateTime?
+
+  // relations
+  unit          Unit            @relation(fields: [unit_id], references: [id])
+  tenant        User            @relation("TenantTickets", fields: [tenant_id], references: [id])
+  images        TicketImage[]
+
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+
+  @@index([unit_id])
+  @@index([tenant_id])
+  @@index([status])
+  @@index([priority])
+  @@map("maintenance_tickets")
+}
+
+model TicketImage {
+  id          String            @id @default(uuid(7))
+  ticket_id   String
+  url         String
+
+  ticket      MaintenanceTicket @relation(fields: [ticket_id], references: [id], onDelete: Cascade)
+
+  created_at  DateTime          @default(now())
+
+  @@index([ticket_id])
+  @@map("ticket_images")
+}
