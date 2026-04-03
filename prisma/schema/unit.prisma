@@ -30,7 +30,10 @@ model Unit {
 
   // status
   status                   UnitStatus      @default(vacant)
-  available_from           DateTime?      
+  available_from           DateTime?     
+
+  is_deleted  Boolean   @default(false)
+  deleted_at  DateTime? 
 
   // media
   images                   UnitImage[]

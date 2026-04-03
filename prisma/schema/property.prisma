@@ -9,6 +9,9 @@ model Property {
   total_units Int
   description String?
 
+  is_deleted  Boolean   @default(false)
+  deleted_at  DateTime?
+
   landlord    User     @relation(fields: [landlord_id], references: [id])
   units       Unit[]
   notices     Notice[] @relation("PropertyNotices")

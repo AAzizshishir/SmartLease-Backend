@@ -7,6 +7,11 @@ enum Role {
   TENANT
 }
 
+enum UserStatus {
+  ACTIVE   
+  BLOCKED   
+}
+
 // Property
 enum PropertyType {
   apartment

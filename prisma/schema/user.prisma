@@ -5,10 +5,14 @@ model User {
   emailVerified             Boolean                 @default(false)
   image                     String?             
   role                      Role                    @default(TENANT)
+  status                    UserStatus              @default(ACTIVE)
   createdAt                 DateTime                @default(now())
   updatedAt                 DateTime                @updatedAt
   sessions                  Session[]
   accounts                  Account[]
+
+  is_deleted                Boolean                 @default(false)
+  deleted_at                DateTime?
 
   properties                Property[]
   applications              LeaseApplication[] 
