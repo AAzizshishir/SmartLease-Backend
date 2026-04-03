@@ -5,7 +5,6 @@ import { Role } from "../../generated/prisma/enums";
 import validateRequest from "../../middleware/validateRequest";
 import {
   createPropertySchema,
-  propertyParamsSchema,
   updatePropertySchema,
 } from "./property.validate";
 
@@ -21,21 +20,15 @@ router.post(
   propertyController.createProperty,
 );
 router.get("/", propertyController.getMyProperties);
-router.get(
-  "/:id",
-  validateRequest(propertyParamsSchema),
-  propertyController.getPropertyById,
-);
+
+router.patch("/restore/:id", propertyController.restoreProperty);
+
+router.get("/:id", propertyController.getPropertyById);
 router.put(
   "/:id",
   validateRequest(updatePropertySchema),
-  validateRequest(propertyParamsSchema),
   propertyController.updateProperty,
 );
-router.delete(
-  "/:id",
-  validateRequest(propertyParamsSchema),
-  propertyController.deleteProperty,
-);
+router.delete("/:id", propertyController.deleteProperty);
 
 export const propertyRoutes = router;

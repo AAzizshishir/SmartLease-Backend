@@ -101,6 +101,23 @@ const deleteProperty = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const restoreProperty = catchAsync(async (req: Request, res: Response) => {
+  const landlord_id = req?.user?.id;
+  const { id } = req.params;
+
+  const property = await propertyService.restoreProperty(
+    id as string,
+    landlord_id as string,
+  );
+
+  sendResponse(res, {
+    httpStatusCode: StatusCodes.OK,
+    success: true,
+    message: "Property restored successfully",
+    data: property,
+  });
+});
+
 export const propertyController = {
   createProperty,
   getAllProperties,
@@ -108,4 +125,5 @@ export const propertyController = {
   getPropertyById,
   updateProperty,
   deleteProperty,
+  restoreProperty,
 };

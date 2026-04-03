@@ -39,9 +39,3 @@ export const updatePropertySchema = z.object({
   description: z.string().max(500).optional(),
   images: z.array(z.string().url()).max(10).optional(),
 });
-
-export const propertyParamsSchema = z.object({
-  params: z.object({
-    id: z.string("Property ID is required").uuid("Invalid property ID format"),
-  }),
-});
