@@ -98,6 +98,11 @@ const getMyProperties = async (landlord_id: string) => {
 const getPropertyById = async (id: string, landlord_id: string) => {
   const property = await prisma.property.findUnique({
     where: { id, is_deleted: false },
+    include: {
+      units: {
+        where: { is_deleted: false },
+      },
+    },
   });
 
   if (!property) {

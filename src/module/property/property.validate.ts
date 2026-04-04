@@ -30,12 +30,4 @@ export const createPropertySchema = z.object({
 });
 
 // update property validation schema
-export const updatePropertySchema = z.object({
-  name: z.string().min(3).max(100).optional(),
-  address: z.string().min(5).optional(),
-  city: z.string().min(2).optional(),
-  type: z.enum(["apartment", "house", "commercial"]).optional(),
-  total_units: z.number().int().positive().max(500).optional(),
-  description: z.string().max(500).optional(),
-  images: z.array(z.string().url()).max(10).optional(),
-});
+export const updatePropertySchema = createPropertySchema.partial();

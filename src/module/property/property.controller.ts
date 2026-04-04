@@ -18,7 +18,7 @@ const createProperty = catchAsync(async (req: Request, res: Response) => {
   );
 
   sendResponse(res, {
-    httpStatusCode: StatusCodes.CREATED,
+    statusCode: StatusCodes.CREATED,
     success: true,
     message: "Property created successfully",
     data: property,
@@ -32,7 +32,7 @@ const getAllProperties = catchAsync(async (req: Request, res: Response) => {
   const result = await propertyService.getAllProperties(query as any);
 
   sendResponse(res, {
-    httpStatusCode: StatusCodes.OK,
+    statusCode: StatusCodes.OK,
     success: true,
     message: "Properties fetched successfully",
     data: result.properties,
@@ -48,7 +48,7 @@ const getMyProperties = catchAsync(async (req: Request, res: Response) => {
   );
 
   sendResponse(res, {
-    httpStatusCode: StatusCodes.OK,
+    statusCode: StatusCodes.OK,
     success: true,
     message: "Properties fetched successfully",
     data: properties,
@@ -66,7 +66,7 @@ const getPropertyById = catchAsync(async (req: Request, res: Response) => {
   );
 
   sendResponse(res, {
-    httpStatusCode: StatusCodes.OK,
+    statusCode: StatusCodes.OK,
     success: true,
     message: "Property fetched successfully",
     data: property,
@@ -88,7 +88,7 @@ const updateProperty = catchAsync(async (req: Request, res: Response) => {
   );
 
   sendResponse(res, {
-    httpStatusCode: StatusCodes.OK,
+    statusCode: StatusCodes.OK,
     success: true,
     message: "Property updated successfully",
     data: property,
@@ -105,13 +105,14 @@ const deleteProperty = catchAsync(async (req: Request, res: Response) => {
   );
 
   sendResponse(res, {
-    httpStatusCode: StatusCodes.OK,
+    statusCode: StatusCodes.OK,
     success: true,
     message: result.message,
     data: null,
   });
 });
 
+// restore property
 const restoreProperty = catchAsync(async (req: Request, res: Response) => {
   const landlord_id = req?.user?.id;
   const { id } = req.params;
@@ -122,7 +123,7 @@ const restoreProperty = catchAsync(async (req: Request, res: Response) => {
   );
 
   sendResponse(res, {
-    httpStatusCode: StatusCodes.OK,
+    statusCode: StatusCodes.OK,
     success: true,
     message: "Property restored successfully",
     data: property,
