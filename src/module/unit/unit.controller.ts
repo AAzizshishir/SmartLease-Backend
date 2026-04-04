@@ -3,6 +3,7 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { Request, Response } from "express";
 import { unitService } from "./unit.service";
+import { IQueryParams } from "../../interface/query.interface";
 
 // add unit in property
 const addUnitInProperty = catchAsync(async (req: Request, res: Response) => {
@@ -24,14 +25,15 @@ const addUnitInProperty = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllVacantUnits = catchAsync(async (req: Request, res: Response) => {
-  const query = req.query as Record<string, any>;
-  const units = await unitService.getAllVacantUnits(query);
+  const query = req.query;
+  const units = await unitService.getAllVacantUnits(query as IQueryParams);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
     message: "Vacant units fetched successfully",
-    data: units,
+    data: units.data,
+    meta: units.meta,
   });
 });
 

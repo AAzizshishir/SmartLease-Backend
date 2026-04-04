@@ -7,6 +7,8 @@ import {
 } from "./property.interface";
 import { QueryBuilder } from "../../utils/QueryBuilder";
 import { IQueryParams } from "../../interface/query.interface";
+import { Prisma, Property } from "../../generated/prisma/client";
+import { filterableFields, searcableFields } from "./property.constant";
 
 // Create Property
 const createProperty = async (
@@ -57,29 +59,29 @@ const createProperty = async (
 };
 
 // get all properties
-const getAllProperties = async (query: Record<string, any>) => {
-  const builder = new QueryBuilder(query)
-    .search(["name", "address", "description", "city"])
+const getAllProperties = async (query: IQueryParams) => {
+  const queryBuilder = new QueryBuilder<
+    Property,
+    Prisma.PropertyWhereInput,
+    Prisma.PropertyInclude
+  >(prisma.property, query, {
+    searchableFields: searcableFields,
+    filterableFields: filterableFields,
+  });
+
+  const result = await queryBuilder
+    .search()
     .filter()
-    .rangeFilter("monthly_rent", "minRent", "maxRent")
-    .softDelete()
+    .where({ is_deleted: false })
+    .paginate()
     .sort()
-    .paginate();
+    .fields()
+    .include({
+      units: true,
+    })
+    .execute();
 
-  const args = builder.build();
-
-  const [properties, meta] = await Promise.all([
-    prisma.property.findMany({
-      where: args.where,
-      orderBy: args.orderBy,
-      skip: args.skip,
-      take: args.take,
-    }),
-
-    builder.getMeta(() => prisma.property.count({ where: args.where })),
-  ]);
-
-  return { properties, meta };
+  return result;
 };
 
 // get my properties (landlord properties)

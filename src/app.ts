@@ -6,8 +6,11 @@ import { auth } from "./lib/auth";
 import { notFound } from "./middleware/notFound";
 import { indexRoutes } from "./routes";
 import { envVariables } from "./config/env";
+import qs from "qs";
 
 const app: Application = express();
+
+app.set("query parser", (str: string) => qs.parse(str));
 
 app.use(
   cors({

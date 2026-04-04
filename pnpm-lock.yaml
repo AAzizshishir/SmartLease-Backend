@@ -44,6 +44,9 @@ importers:
       pg:
         specifier: ^8.20.0
         version: 8.20.0
+      qs:
+        specifier: ^6.15.0
+        version: 6.15.0
       zod:
         specifier: ^4.3.6
         version: 4.3.6
@@ -66,6 +69,9 @@ importers:
       '@types/pg':
         specifier: ^8.20.0
         version: 8.20.0
+      '@types/qs':
+        specifier: ^6.15.0
+        version: 6.15.0
       prisma:
         specifier: ^7.6.0
         version: 7.6.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@6.0.2)

@@ -3,6 +3,8 @@ import { prisma } from "../../lib/prisma";
 import AppError from "../../utils/AppError";
 import { CreateUnitPayload, UpdateUnitInput } from "./unit.interface";
 import { QueryBuilder } from "../../utils/QueryBuilder";
+import { filterableFields, searcableFields } from "./unit.constant";
+import { Prisma, Unit } from "../../generated/prisma/client";
 
 // Add Unit
 const addUnitInProperty = async (
@@ -55,41 +57,25 @@ const addUnitInProperty = async (
 };
 
 const getAllVacantUnits = async (query: Record<string, any>) => {
-  const vacentUnits = await prisma.unit.findMany({
-    where: {
-      status: "vacant",
-    },
+  const queryBuilder = new QueryBuilder<
+    Unit,
+    Prisma.UnitWhereInput,
+    Prisma.UnitInclude
+  >(prisma.unit, query, {
+    searchableFields: searcableFields,
+    filterableFields: filterableFields,
   });
-  return vacentUnits;
-  // const builder = new QueryBuilder(query)
-  //   .search(["unit_number"])
-  //   .filter()
-  //   .rangeFilter("monthly_rent", "minRent", "maxRent")
-  //   .softDelete()
-  //   .sort()
-  //   .paginate();
 
-  // const args = builder.build();
+  const result = await queryBuilder
+    .search()
+    .filter()
+    .where({ status: "vacant", is_deleted: false })
+    .paginate()
+    .sort()
+    .fields()
+    .execute();
 
-  // const where = {
-  //   ...args.where,
-  //   status: "vacant",
-  // };
-
-  // const [units, meta] = await Promise.all([
-  //   prisma.unit.findMany({
-  //     where,
-  //     orderBy: args.orderBy,
-  //     skip: args.skip,
-  //     take: args.take,
-  //     include: {
-  //       property: true,
-  //     },
-  //   }),
-  //   builder.getMeta(() => prisma.unit.count({ where })),
-  // ]);
-
-  // return { units, meta };
+  return result;
 };
 
 // get unit by id
