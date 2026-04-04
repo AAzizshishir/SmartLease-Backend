@@ -5,6 +5,8 @@ import {
   CreatePropertyPayload,
   UpdatePropertyPayload,
 } from "./property.interface";
+import { QueryBuilder } from "../../utils/QueryBuilder";
+import { IQueryParams } from "../../interface/query.interface";
 
 // Create Property
 const createProperty = async (
@@ -55,16 +57,29 @@ const createProperty = async (
 };
 
 // get all properties
-const getAllProperties = async () => {
-  const properties = await prisma.property.findMany({
-    where: { is_deleted: false },
-    orderBy: { created_at: "desc" },
-  });
+const getAllProperties = async (query: Record<string, any>) => {
+  const builder = new QueryBuilder(query)
+    .search(["name", "address", "description", "city"])
+    .filter()
+    .rangeFilter("monthly_rent", "minRent", "maxRent")
+    .softDelete()
+    .sort()
+    .paginate();
 
-  if (properties.length === 0) {
-    throw new AppError(StatusCodes.NOT_FOUND, "No properties found");
-  }
-  return properties;
+  const args = builder.build();
+
+  const [properties, meta] = await Promise.all([
+    prisma.property.findMany({
+      where: args.where,
+      orderBy: args.orderBy,
+      skip: args.skip,
+      take: args.take,
+    }),
+
+    builder.getMeta(() => prisma.property.count({ where: args.where })),
+  ]);
+
+  return { properties, meta };
 };
 
 // get my properties (landlord properties)
