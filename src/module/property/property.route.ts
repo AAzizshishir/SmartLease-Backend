@@ -11,7 +11,10 @@ import { multerUpload } from "../../config/multer.config";
 
 const router = Router();
 
-router.get("/all", propertyController.getAllProperties); // public route
+router.get("/", propertyController.getAllProperties); // public route
+
+// get property by id
+router.get("/:id", propertyController.getPropertyById); // details
 
 router.use(authMiddleware(Role.LANDLORD));
 
@@ -26,20 +29,17 @@ router.post(
 // get my properties (landlord properties)
 router.get("/", propertyController.getMyProperties);
 
-// restore property
-router.patch("/:id/restore", propertyController.restoreProperty);
-
-// get property by id
-router.get("/:id", propertyController.getPropertyById);
-
 // update property
 router.put(
-  "/update/:id",
+  "/:id",
   validateRequest(updatePropertySchema),
   propertyController.updateProperty,
 );
 
 // delete property
 router.delete("/:id", propertyController.deleteProperty);
+
+// restore property
+router.patch("/:id/restore", propertyController.restoreProperty);
 
 export const propertyRoutes = router;

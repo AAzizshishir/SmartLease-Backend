@@ -6,7 +6,7 @@ import { Role } from "../../generated/prisma/enums";
 import { createUnitSchema, updateUnitSchema } from "./unite.validate";
 import validateRequest from "../../middleware/validateRequest";
 
-const router = Router({ mergeParams: true });
+const router = Router();
 
 // public routes
 router.get("/", unitController.getAllVacantUnits);

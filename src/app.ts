@@ -23,7 +23,7 @@ app.use(express.json());
 
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
-app.use("/api", indexRoutes);
+app.use("/api/v1", indexRoutes);
 
 app.use(cookieParser());
 

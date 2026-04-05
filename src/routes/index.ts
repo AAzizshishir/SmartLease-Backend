@@ -5,7 +5,7 @@ import { unitRoutes } from "../module/unit/unit.routes";
 const router = Router();
 
 // Property Route
-router.use("/property", propertyRoutes);
+router.use("/properties", propertyRoutes);
 
 // Unit Route
 router.use("/unit", unitRoutes);

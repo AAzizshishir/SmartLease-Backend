@@ -77,7 +77,9 @@ const getAllProperties = async (query: IQueryParams) => {
     .sort()
     .fields()
     .include({
-      units: true,
+      units: {
+        where: { is_deleted: false },
+      },
     })
     .execute();
 
@@ -85,40 +87,39 @@ const getAllProperties = async (query: IQueryParams) => {
 };
 
 // get my properties (landlord properties)
-const getMyProperties = async (landlord_id: string) => {
-  const properties = await prisma.property.findMany({
-    where: { landlord_id, is_deleted: false },
-
-    orderBy: { created_at: "desc" },
+const getMyProperties = async (landlord_id: string, query: IQueryParams) => {
+  const queryBuilder = new QueryBuilder<
+    Property,
+    Prisma.PropertyWhereInput,
+    Prisma.PropertyInclude
+  >(prisma.property, query, {
+    searchableFields: searcableFields,
+    filterableFields: filterableFields,
   });
 
-  // response shape
-  return properties;
+  const result = await queryBuilder
+    .search()
+    .filter()
+    .where({ landlord_id, is_deleted: false })
+    .paginate()
+    .sort()
+    .fields()
+    .include({
+      units: true,
+    })
+    .execute();
+
+  return result;
 };
 
 // get property by id
-const getPropertyById = async (id: string, landlord_id: string) => {
+const getPropertyById = async (id: string) => {
   const property = await prisma.property.findUnique({
     where: { id, is_deleted: false },
-    include: {
-      units: {
-        where: { is_deleted: false },
-      },
-    },
+    include: { units: { where: { is_deleted: false } } },
   });
-
   if (!property) {
     throw new AppError(StatusCodes.NOT_FOUND, "Property not found");
-  }
-  console.log("property landlord_id", property.landlord_id);
-  console.log("propertyid", landlord_id);
-
-  // অন্য landlord-এর property access করতে পারবে না
-  if (property.landlord_id !== landlord_id) {
-    throw new AppError(
-      StatusCodes.FORBIDDEN,
-      "You are not authorized to view this property",
-    );
   }
 
   return property;

@@ -3,6 +3,7 @@ import { propertyService } from "./property.service";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { StatusCodes } from "http-status-codes";
+import { IQueryParams } from "../../interface/query.interface";
 
 // Create Property
 const createProperty = catchAsync(async (req: Request, res: Response) => {
@@ -29,7 +30,7 @@ const createProperty = catchAsync(async (req: Request, res: Response) => {
 const getAllProperties = catchAsync(async (req: Request, res: Response) => {
   const query = req.query;
   console.log(query);
-  const result = await propertyService.getAllProperties(query as any);
+  const result = await propertyService.getAllProperties(query as IQueryParams);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
@@ -43,8 +44,10 @@ const getAllProperties = catchAsync(async (req: Request, res: Response) => {
 // get my properties (landlord properties)
 const getMyProperties = catchAsync(async (req: Request, res: Response) => {
   const landlord_id = req?.user?.id;
+  const query = req.query;
   const properties = await propertyService.getMyProperties(
     landlord_id as string,
+    query as IQueryParams,
   );
 
   sendResponse(res, {
@@ -57,13 +60,8 @@ const getMyProperties = catchAsync(async (req: Request, res: Response) => {
 
 // get property by id
 const getPropertyById = catchAsync(async (req: Request, res: Response) => {
-  const landlord_id = req?.user?.id;
-  console.log("from controller landlord id", landlord_id);
   const { id } = req.params;
-  const property = await propertyService.getPropertyById(
-    id as string,
-    landlord_id as string,
-  );
+  const property = await propertyService.getPropertyById(id as string);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
