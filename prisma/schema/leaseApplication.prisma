@@ -2,6 +2,7 @@ model LeaseApplication {
   id                        String            @id @default(uuid(7))
   unit_id                   String
   tenant_id                 String
+  lease_id                  String?           @unique
 
   profession                String
   monthly_income            Decimal      @db.Decimal(10, 2)
@@ -24,7 +25,7 @@ model LeaseApplication {
 
   unit                      Unit              @relation(fields: [unit_id], references: [id])
   tenant                    User              @relation(fields: [tenant_id], references: [id])
-  lease                     Lease?            
+  lease                     Lease?            @relation(fields: [lease_id], references: [id])            
 
   created_at                DateTime          @default(now())
   updated_at                DateTime          @updatedAt
