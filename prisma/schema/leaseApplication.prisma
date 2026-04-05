@@ -4,7 +4,7 @@ model LeaseApplication {
   tenant_id                 String
 
   profession                String
-  monthly_income            Decimal   
+  monthly_income            Decimal      @db.Decimal(10, 2)
   work_place_address        String? 
   num_occupants             Int           @default(1)  
   has_pets                  Boolean       @default(false)

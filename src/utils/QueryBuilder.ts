@@ -11,8 +11,8 @@ import {
 
 export class QueryBuilder<
   T, // model type
-  TWhereInput = Record<string, unknown>, //type of where input.
-  TInclude = Record<string, unknown>, //type of include input.
+  TWhereInput = Record<string, unknown>, // prisma table where input.
+  TInclude = Record<string, unknown>, // prisma table include.
 > {
   private query: PrismaFindManyArgs;
   private countQuery: PrismaCountQueryArgs;

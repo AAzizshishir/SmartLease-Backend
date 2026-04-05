@@ -5,12 +5,10 @@ model Payment {
   tenant_id           String
 
   type                PaymentType
-  amount              Decimal
-  late_fee            Decimal       @default(0)
-  total_amount        Decimal       // amount + late_fee
+  amount              Decimal       @db.Decimal(10, 2)
+  late_fee            Decimal       @db.Decimal(10, 2) @default(0)
+  total_amount        Decimal       @db.Decimal(10, 2) // amount + late_fee
 
-  // কোন মাসের payment — "2025-02"
-  // security deposit-এ null হবে
   billing_month       String?
 
   due_date            DateTime

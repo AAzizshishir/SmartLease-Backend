@@ -16,7 +16,7 @@ model Unit {
   balconies                Int             @default(0)
 
   // pricing
-  monthly_rent             Decimal
+  monthly_rent             Decimal         @db.Decimal(10, 2)
   security_deposit_months  Int             @default(2)
 
   // amenities - boolean flags

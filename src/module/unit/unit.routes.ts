@@ -14,7 +14,7 @@ router.get("/:unit_id", unitController.getUnitById);
 
 // protected routes for landlord
 router.post(
-  "/",
+  "/:property_id",
   authMiddleware(Role.LANDLORD),
   validateRequest(createUnitSchema),
   unitController.addUnitInProperty,

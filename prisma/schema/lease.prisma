@@ -12,13 +12,13 @@ model Lease {
   end_date                  DateTime
 
   // payment terms
-  monthly_rent              Decimal
+  monthly_rent              Decimal       @db.Decimal(10, 2)
   payment_due_day           Int           @default(5) 
   late_fee_after_days       Int           @default(5)  
-  late_fee_amount           Decimal       @default(0)
+  late_fee_amount           Decimal       @db.Decimal(10, 2) @default(0)
 
   // deposit
-  security_deposit          Decimal       // monthly_rent × deposit_months
+  security_deposit          Decimal       @db.Decimal(10, 2) // monthly_rent × deposit_months
   deposit_status            DepositStatus @default(pending)
   deposit_paid_at           DateTime?
   deposit_deadline          DateTime      // কতদিনের মধ্যে দিতে হবে
