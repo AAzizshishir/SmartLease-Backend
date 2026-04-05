@@ -9,6 +9,9 @@ interface envConfig {
   APP_URL: string;
   BETTER_AUTH_SECRET: string;
   BETTER_AUTH_URL: string;
+  ADMIN_NAME: string;
+  ADMIN_EMAIL: string;
+  ADMIN_PASSWORD: string;
   CLOUDINARY: {
     CLOUDINARY_CLOUDE_NAME: string;
     CLOUDINARY_API_KEY: string;
@@ -27,6 +30,9 @@ const loadEnvVariables = (): envConfig => {
     "CLOUDINARY_CLOUDE_NAME",
     "CLOUDINARY_API_KEY",
     "CLOUDINARY_API_SECRET",
+    "ADMIN_NAME",
+    "ADMIN_EMAIL",
+    "ADMIN_PASSWORD",
   ];
 
   requireEnvVariables.forEach((variable) => {
@@ -44,6 +50,9 @@ const loadEnvVariables = (): envConfig => {
     APP_URL: process.env.APP_URL as string,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET as string,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL as string,
+    ADMIN_NAME: process.env.ADMIN_NAME as string,
+    ADMIN_EMAIL: process.env.ADMIN_EMAIL as string,
+    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD as string,
     CLOUDINARY: {
       CLOUDINARY_CLOUDE_NAME: process.env.CLOUDINARY_CLOUDE_NAME as string,
       CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY as string,

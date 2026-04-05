@@ -8,6 +8,7 @@
     "migrate": "prisma migrate dev",
     "generate": "prisma generate",
     "studio": "prisma studio",
+    "seed:admin": "npx tsx src/scripts/seedAdmin.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
