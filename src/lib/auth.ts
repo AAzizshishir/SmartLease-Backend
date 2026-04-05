@@ -21,7 +21,7 @@ export const auth = betterAuth({
       },
       status: {
         type: "string",
-        required: true,
+        required: false,
         default: UserStatus.ACTIVE,
       },
     },

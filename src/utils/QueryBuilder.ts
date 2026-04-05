@@ -165,7 +165,8 @@ export class QueryBuilder<
   }
 
   sort(): this {
-    const sortBy = this.queryParams.sortBy || "created_at";
+    const defaultSort = this.config.defaultSortBy ?? "created_at";
+    const sortBy = this.queryParams.sortBy || defaultSort;
     const sortOrder = this.queryParams.sortOrder || "desc";
 
     this.sortBy = sortBy;
