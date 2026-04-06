@@ -4,6 +4,7 @@ import { unitRoutes } from "../module/unit/unit.routes";
 import { userRoutes } from "../module/user/user.routes";
 import { leaseApplication } from "../module/leaseApplication/leaseApplication.routes";
 import { leaseRoutes } from "../module/lease/lease.routes";
+import { paymentRoutes } from "../module/payment/payment.routes";
 
 const router = Router();
 
@@ -21,5 +22,8 @@ router.use("/lease-application", leaseApplication);
 
 // Lease
 router.use("/lease", leaseRoutes);
+
+// Payment
+router.use("/payment", paymentRoutes);
 
 export const indexRoutes = router;

@@ -192,6 +192,8 @@ const confirmLease = async (id: string, tenant_id: string) => {
       payment_due_day: true,
       unit_id: true,
       tenant_id: true,
+      security_deposit: true,
+      deposit_deadline: true,
     },
   });
 
@@ -213,6 +215,19 @@ const confirmLease = async (id: string, tenant_id: string) => {
     await tx.unit.update({
       where: { id: lease.unit_id },
       data: { status: "occupied" },
+    });
+
+    // deposit payment create
+    await tx.payment.create({
+      data: {
+        lease_id: lease.id,
+        tenant_id: lease.tenant_id,
+        type: "security_deposit",
+        amount: lease.security_deposit,
+        total_amount: lease.security_deposit,
+        due_date: lease.deposit_deadline,
+        status: "pending",
+      },
     });
 
     // payment rows generate

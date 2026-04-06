@@ -12,9 +12,9 @@ model Lease {
 
   // payment terms
   monthly_rent              Decimal       @db.Decimal(10, 2)
-  payment_due_day           Int           @default(5) 
-  late_fee_after_days       Int           @default(5)  
-  late_fee_amount           Decimal       @db.Decimal(10, 2) @default(0)
+  payment_due_day           Int           @default(6) 
+  late_fee_after_days       Int           @default(6)  
+  late_fee_amount           Decimal       @db.Decimal(10, 2) @default(100)
 
   // deposit
   security_deposit          Decimal       @db.Decimal(10, 2) // monthly_rent × deposit_months

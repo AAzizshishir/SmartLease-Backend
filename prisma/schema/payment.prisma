@@ -20,8 +20,6 @@ model Payment {
   stripe_payment_id   String?       // Stripe-এর transaction id
   stripe_session_id   String?       // checkout session id
 
-  // landlord manually mark করতে পারবেন
-  // যেমন cash দিয়েছেন
   is_manual           Boolean       @default(false)
   manual_note         String?       
 
