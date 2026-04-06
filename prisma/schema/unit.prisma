@@ -59,6 +59,7 @@ model UnitImage {
   id          String   @id @default(uuid(7))
   unit_id     String
   url         String
+  public_id   String 
   is_primary  Boolean  @default(false)  // thumbnail
   order       Int      @default(0)       // image ordering
 

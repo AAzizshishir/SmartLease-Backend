@@ -40,7 +40,8 @@ model TicketImage {
   id          String            @id @default(uuid(7))
   ticket_id   String
   url         String
-
+  public_id   String   
+  
   ticket      MaintenanceTicket @relation(fields: [ticket_id], references: [id], onDelete: Cascade)
 
   created_at  DateTime          @default(now())

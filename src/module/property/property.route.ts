@@ -7,7 +7,7 @@ import {
   createPropertySchema,
   updatePropertySchema,
 } from "./property.validate";
-import { multerUpload } from "../../config/multer.config";
+// import { multerUpload } from "../../config/multer.config";
 
 const router = Router();
 
@@ -21,7 +21,7 @@ router.use(authMiddleware(Role.LANDLORD));
 // Create Property
 router.post(
   "/",
-  multerUpload.single("file"),
+  // multerUpload.single("file"),
   validateRequest(createPropertySchema),
   propertyController.createProperty,
 );

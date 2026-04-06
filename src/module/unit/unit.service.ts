@@ -5,6 +5,10 @@ import { CreateUnitPayload, UpdateUnitInput } from "./unit.interface";
 import { QueryBuilder } from "../../utils/QueryBuilder";
 import { filterableFields, searcableFields } from "./unit.constant";
 import { Prisma, Unit } from "../../generated/prisma/client";
+import {
+  deleteFromCloudinary,
+  uploadManyToCloudinary,
+} from "../../utils/cloudinary.utils";
 
 // Add Unit
 const addUnitInProperty = async (
@@ -239,6 +243,172 @@ const restoreUnit = async (
   return restored;
 };
 
+// upload image to cloudinary
+const uploadUnitImages = async (
+  unit_id: string,
+  landlord_id: string,
+  files: Express.Multer.File[],
+) => {
+  const unit = await prisma.unit.findFirst({
+    where: { id: unit_id, is_deleted: false },
+    select: {
+      id: true,
+      property: { select: { landlord_id: true } },
+      _count: { select: { images: true } },
+    },
+  });
+
+  if (!unit) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Unit not found");
+  }
+
+  if (unit.property.landlord_id !== landlord_id) {
+    throw new AppError(StatusCodes.FORBIDDEN, "Not authorized");
+  }
+
+  if (unit._count.images + files.length > 10) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      `Cannot upload more than 10 images. Current: ${unit._count.images}`,
+    );
+  }
+
+  // upload to Cloudinary
+  const uploaded = await uploadManyToCloudinary(files, "units");
+
+  const isFirstUpload = unit._count.images === 0;
+
+  try {
+    // Save in DB
+    const images = await prisma.$transaction(
+      uploaded.map((result, index) =>
+        prisma.unitImage.create({
+          data: {
+            unit_id,
+            url: result.url,
+            public_id: result.public_id,
+            is_primary: isFirstUpload && index === 0,
+            order: unit._count.images + index,
+          },
+          select: {
+            id: true,
+            url: true,
+            public_id: true,
+            is_primary: true,
+            order: true,
+          },
+        }),
+      ),
+    );
+
+    return images;
+  } catch (error) {
+    // delete from cloudinary if DB fails
+    await Promise.all(
+      uploaded.map((result) => deleteFromCloudinary(result.public_id)),
+    );
+    throw error;
+  }
+};
+
+// Delete unit image
+const deleteUnitImage = async (image_id: string, landlord_id: string) => {
+  const image = await prisma.unitImage.findFirst({
+    where: { id: image_id },
+    select: {
+      id: true,
+      public_id: true,
+      is_primary: true,
+      unit_id: true,
+      unit: {
+        select: {
+          property: { select: { landlord_id: true } },
+        },
+      },
+    },
+  });
+
+  if (!image) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Image not found");
+  }
+
+  if (image.unit.property.landlord_id !== landlord_id) {
+    throw new AppError(StatusCodes.FORBIDDEN, "Not authorized");
+  }
+
+  // Delete from Cloudinary
+  await deleteFromCloudinary(image.public_id);
+
+  //  Delete from DB
+  await prisma.unitImage.delete({ where: { id: image_id } });
+
+  if (image.is_primary) {
+    const nextImage = await prisma.unitImage.findFirst({
+      where: { unit_id: image.unit_id },
+      orderBy: { order: "asc" },
+    });
+
+    if (nextImage) {
+      await prisma.unitImage.update({
+        where: { id: nextImage.id },
+        data: { is_primary: true },
+      });
+    }
+  }
+
+  return { message: "Image deleted successfully" };
+};
+
+const setPrimaryImage = async (image_id: string, landlord_id: string) => {
+  const image = await prisma.unitImage.findFirst({
+    where: { id: image_id },
+    select: {
+      id: true,
+      unit_id: true,
+      unit: {
+        select: {
+          property: { select: { landlord_id: true } },
+        },
+      },
+    },
+  });
+
+  if (!image) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Image not found");
+  }
+
+  if (image.unit.property.landlord_id !== landlord_id) {
+    throw new AppError(StatusCodes.FORBIDDEN, "Not authorized");
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.unitImage.updateMany({
+      where: { unit_id: image.unit_id, is_primary: true },
+      data: { is_primary: false },
+    });
+
+    await tx.unitImage.update({
+      where: { id: image_id },
+      data: { is_primary: true },
+    });
+  });
+
+  return { message: "Primary image updated" };
+};
+
+const getUnitImages = async (unit_id: string) => {
+  return prisma.unitImage.findMany({
+    where: { unit_id },
+    select: {
+      id: true,
+      url: true,
+      is_primary: true,
+      order: true,
+    },
+    orderBy: { order: "asc" },
+  });
+};
+
 export const unitService = {
   addUnitInProperty,
   getAllVacantUnits,
@@ -246,4 +416,8 @@ export const unitService = {
   updateUnit,
   deleteUnit,
   restoreUnit,
+  uploadUnitImages,
+  setPrimaryImage,
+  getUnitImages,
+  deleteUnitImage,
 };

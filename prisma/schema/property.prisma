@@ -1,25 +1,42 @@
 model Property {
-  id          String   @id @default(uuid(7))
-  landlord_id String
-  name        String
-  image       String?
-  address     String
-  city        String
-  type        PropertyType @default(apartment)
-  total_units Int
-  description String?
+  id                  String            @id @default(uuid(7))
+  landlord_id         String
+  name                String
+  image               String?
+  address             String
+  city                String
+  type                PropertyType      @default(apartment)
+  total_units         Int
+  description         String?
 
-  is_deleted  Boolean   @default(false)
-  deleted_at  DateTime?
+  is_deleted          Boolean           @default(false)
+  deleted_at          DateTime?
 
-  landlord    User     @relation(fields: [landlord_id], references: [id])
-  units       Unit[]
-  notices     Notice[] @relation("PropertyNotices")
+  landlord            User              @relation(fields: [landlord_id], references: [id])
+  units               Unit[]
+  notices             Notice[]          @relation("PropertyNotices")
+  images              PropertyImage[]
 
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  created_at          DateTime          @default(now())
+  updated_at          DateTime          @updatedAt
 
   @@index([landlord_id])
   @@index([city])
   @@map("properties")
+}
+
+model PropertyImage {
+  id          String    @id @default(uuid(7))
+  property_id String
+  url         String
+  public_id   String    // Cloudinary public_id
+  is_primary  Boolean   @default(false)  // main property image
+  order       Int       @default(0)      // gallery ordering
+
+  property    Property  @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  created_at  DateTime  @default(now())
+
+  @@index([property_id])
+  @@map("property_images")
 }

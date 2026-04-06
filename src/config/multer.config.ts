@@ -1,37 +1,22 @@
 import multer from "multer";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
-import { cloudinaryUpload } from "./cloudinary.config";
+import AppError from "../utils/AppError";
+import { StatusCodes } from "http-status-codes";
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinaryUpload,
-  params: async (req, file) => {
-    const originalName = file.originalname;
-    const extension = originalName.split(".").pop()?.toLocaleLowerCase();
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
-    const fileNameWithoutExtension = originalName
-      .split(".")
-      .slice(0, -1)
-      .join(".")
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      // eslint-disable-next-line no-useless-escape
-      .replace(/[^a-z0-9\-]/g, "");
-
-    const uniqueName =
-      Math.random().toString(36).substring(2) +
-      "-" +
-      Date.now() +
-      "-" +
-      fileNameWithoutExtension;
-
-    const folder = extension === "pdf" ? "pdfs" : "images";
-
-    return {
-      folder: `smart-lease/${folder}`,
-      public_id: uniqueName,
-      resource_type: "auto",
-    };
+export const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_SIZE },
+  fileFilter: (req, file, cb) => {
+    if (!ALLOWED_TYPES.includes(file.mimetype)) {
+      return cb(
+        new AppError(
+          StatusCodes.BAD_REQUEST,
+          "Only JPEG, PNG and WEBP images are allowed",
+        ) as any,
+      );
+    }
+    cb(null, true);
   },
 });
-
-export const multerUpload = multer({ storage });

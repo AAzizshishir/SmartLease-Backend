@@ -106,6 +106,70 @@ const restoreUnit = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// ---- Images ---- //
+
+const uploadUnitImages = catchAsync(async (req: Request, res: Response) => {
+  const files = req.files as Express.Multer.File[];
+
+  if (!files || files.length === 0) {
+    return sendResponse(res, {
+      statusCode: StatusCodes.BAD_REQUEST,
+      success: false,
+      message: "No images provided",
+      data: null,
+    });
+  }
+
+  const images = await unitService.uploadUnitImages(
+    req.params.unit_id as string,
+    req.user!.id,
+    files,
+  );
+
+  sendResponse(res, {
+    statusCode: StatusCodes.CREATED,
+    success: true,
+    message: "Images uploaded successfully",
+    data: images,
+  });
+});
+
+const deleteUnitImage = catchAsync(async (req: Request, res: Response) => {
+  await unitService.deleteUnitImage(
+    req.params.image_id as string,
+    req.user!.id,
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Image deleted successfully",
+    data: null,
+  });
+});
+
+const setPrimaryImage = catchAsync(async (req: Request, res: Response) => {
+  const result = await unitService.setPrimaryImage(
+    req.params.image_id as string,
+    req.user!.id,
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: result.message,
+    data: null,
+  });
+});
+
+const getUnitImages = catchAsync(async (req: Request, res: Response) => {
+  const images = await unitService.getUnitImages(req.params.unit_id as string);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Images fetched successfully",
+    data: images,
+  });
+});
+
 export const unitController = {
   addUnitInProperty,
   getAllVacantUnits,
@@ -113,4 +177,8 @@ export const unitController = {
   updateUnit,
   deleteUnit,
   restoreUnit,
+  uploadUnitImages,
+  setPrimaryImage,
+  getUnitImages,
+  deleteUnitImage,
 };
