@@ -8,6 +8,7 @@ import { manualPaymentSchema } from "./payment.validate";
 const router = Router();
 
 // Tenant
+// All Payment List
 router.get("/", authMiddleware(Role.TENANT), paymentController.getMyPayments);
 
 router.get(

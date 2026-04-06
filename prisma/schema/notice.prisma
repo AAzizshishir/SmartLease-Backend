@@ -3,7 +3,7 @@ model Notice {
   id               String       @id @default(uuid(7))
   landlord_id      String
   property_id      String
-  unit_id          String?      // specific unit হলে, all tenants হলে nu
+  unit_id          String?      // specific unit হলে, all tenants হলে null
   title            String
   body             String
   type             NoticeType   @default(general)

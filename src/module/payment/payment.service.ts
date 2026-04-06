@@ -199,6 +199,7 @@ const markAsPaid = async (
       select: {
         id: true,
         status: true,
+        billing_month: true,
         amount: true,
         paid_at: true,
         is_manual: true,

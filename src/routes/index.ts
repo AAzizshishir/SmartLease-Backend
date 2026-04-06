@@ -5,6 +5,7 @@ import { userRoutes } from "../module/user/user.routes";
 import { leaseApplication } from "../module/leaseApplication/leaseApplication.routes";
 import { leaseRoutes } from "../module/lease/lease.routes";
 import { paymentRoutes } from "../module/payment/payment.routes";
+import { maintenanceRoutes } from "../module/maintenance/maintenance.routes";
 
 const router = Router();
 
@@ -25,5 +26,8 @@ router.use("/lease", leaseRoutes);
 
 // Payment
 router.use("/payment", paymentRoutes);
+
+// Maintenance
+router.use("/maintenance", maintenanceRoutes);
 
 export const indexRoutes = router;
