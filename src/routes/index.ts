@@ -6,6 +6,7 @@ import { leaseApplication } from "../module/leaseApplication/leaseApplication.ro
 import { leaseRoutes } from "../module/lease/lease.routes";
 import { paymentRoutes } from "../module/payment/payment.routes";
 import { maintenanceRoutes } from "../module/maintenance/maintenance.routes";
+import { noticeRoutes } from "../module/notice/notice.routes";
 
 const router = Router();
 
@@ -29,5 +30,8 @@ router.use("/payment", paymentRoutes);
 
 // Maintenance
 router.use("/maintenance", maintenanceRoutes);
+
+// Notice
+router.use("/notice", noticeRoutes);
 
 export const indexRoutes = router;
