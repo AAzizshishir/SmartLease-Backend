@@ -7,8 +7,15 @@ import { notFound } from "./middleware/notFound";
 import { indexRoutes } from "./routes";
 import { envVariables } from "./config/env";
 import qs from "qs";
+import { webhookController } from "./module/payment/webhook.controller";
 
 const app: Application = express();
+
+app.post(
+  "/api/webhooks/stripe",
+  express.raw({ type: "application/json" }),
+  webhookController.handleWebhook,
+);
 
 app.set("query parser", (str: string) => qs.parse(str));
 

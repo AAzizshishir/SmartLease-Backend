@@ -9,6 +9,7 @@
     "generate": "prisma generate",
     "studio": "prisma studio",
     "seed:admin": "npx tsx src/scripts/seedAdmin.ts",
+    "stripe:webhook": "stripe listen --forward-to localhost:5000/api/webhooks/stripe",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",

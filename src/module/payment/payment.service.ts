@@ -5,6 +5,8 @@ import { prisma } from "../../lib/prisma";
 import AppError from "../../utils/AppError";
 import { QueryBuilder } from "../../utils/QueryBuilder";
 import { ManualPaymentInput, RefundDepositInput } from "./payment.validate";
+import { stripe } from "../../config/stripe.config";
+import { envVariables } from "../../config/env";
 
 // Tenant — payment
 const getMyPayments = async (tenant_id: string, query: IQueryParams) => {
@@ -103,7 +105,18 @@ const payNow = async (id: string, tenant_id: string) => {
       status: true,
       type: true,
       total_amount: true,
+      billing_month: true,
       lease_id: true,
+      lease: {
+        select: {
+          unit: {
+            select: {
+              unit_number: true,
+              property: { select: { name: true } },
+            },
+          },
+        },
+      },
     },
   });
 
@@ -120,40 +133,76 @@ const payNow = async (id: string, tenant_id: string) => {
   }
 
   // TODO: Stripe integration
-  // const session = await stripe.checkout.sessions.create({...})
-  // return { url: session.url }
-
-  // For now, simulate Stripe success
-  const updated = await prisma.$transaction(async (tx) => {
-    const updatedPayment = await tx.payment.update({
-      where: { id: payment.id },
-      data: {
-        status: "paid",
-        paid_at: new Date(),
+  // Stripe checkout session
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    mode: "payment",
+    line_items: [
+      {
+        price_data: {
+          currency: "bdt",
+          product_data: {
+            name:
+              payment.type === "security_deposit"
+                ? `Security Deposit — ${payment.lease.unit.property.name} Unit ${payment.lease.unit.unit_number}`
+                : `Rent — ${payment.billing_month} — ${payment.lease.unit.property.name} Unit ${payment.lease.unit.unit_number}`,
+          },
+          // Stripe amount cent/paisa-তে — তাই 100 দিয়ে গুণ
+          unit_amount: Math.round(Number(payment.total_amount) * 100),
+        },
+        quantity: 1,
       },
-      select: {
-        id: true,
-        status: true,
-        type: true,
-        amount: true,
-        total_amount: true,
-        paid_at: true,
-        billing_month: true,
-      },
-    });
-
-    // deposit হলে lease update হবে
-    if (payment.type === "security_deposit") {
-      await tx.lease.update({
-        where: { id: payment.lease_id },
-        data: { deposit_status: "paid", deposit_paid_at: new Date() },
-      });
-    }
-
-    return updatedPayment;
+    ],
+    // payment_id পাঠাচ্ছি যাতে webhook-এ identify করা যায়
+    metadata: {
+      payment_id: payment.id,
+      tenant_id,
+      type: payment.type,
+      lease_id: payment.lease_id,
+    },
+    success_url: `${envVariables.APP_URL}/payments/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${envVariables.APP_URL}/payments/cancel`,
   });
 
-  return updated;
+  // session id DB-তে রাখো
+  await prisma.payment.update({
+    where: { id },
+    data: { stripe_session_id: session.id },
+  });
+
+  return { url: session.url };
+
+  // // For now, simulate Stripe success
+  // const updated = await prisma.$transaction(async (tx) => {
+  //   const updatedPayment = await tx.payment.update({
+  //     where: { id: payment.id },
+  //     data: {
+  //       status: "paid",
+  //       paid_at: new Date(),
+  //     },
+  //     select: {
+  //       id: true,
+  //       status: true,
+  //       type: true,
+  //       amount: true,
+  //       total_amount: true,
+  //       paid_at: true,
+  //       billing_month: true,
+  //     },
+  //   });
+
+  //   // deposit হলে lease update হবে
+  //   if (payment.type === "security_deposit") {
+  //     await tx.lease.update({
+  //       where: { id: payment.lease_id },
+  //       data: { deposit_status: "paid", deposit_paid_at: new Date() },
+  //     });
+  //   }
+
+  //   return updatedPayment;
+  // });
+
+  // return updated;
 };
 
 // Landlord — manually mark as paid (cash/cheque)
