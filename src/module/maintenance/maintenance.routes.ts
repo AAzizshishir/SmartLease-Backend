@@ -9,6 +9,7 @@ import {
   updateTicketSchema,
 } from "./maintenance.validation";
 import { maintenanceController } from "./maintenance.controller";
+import { upload } from "../../config/multer.config";
 
 const router = Router();
 
@@ -51,12 +52,23 @@ router.patch(
   maintenanceController.closeTicket,
 );
 
-// router.post(
-//   "/:id/images",
-//   authMiddleware(Role.TENANT),
-//   upload.array("images", 5),
-//   maintenanceController.uploadTicketImages
-// );
+// ---- Images ---- //
+
+router.get("/:ticket_id/images", maintenanceController.getTicketImages);
+
+router.post(
+  "/:ticket_id/images",
+  authMiddleware(Role.TENANT),
+  upload.array("images", 10),
+  maintenanceController.uploadTicketImages,
+);
+
+// delete image
+router.delete(
+  "/:ticket_id/images/:image_id",
+  authMiddleware(Role.TENANT),
+  maintenanceController.deleteTicketImage,
+);
 
 // ---- Landlord ----
 router.get(

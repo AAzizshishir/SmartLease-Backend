@@ -10,6 +10,10 @@ import {
 import { IQueryParams } from "../../interface/query.interface";
 import { QueryBuilder } from "../../utils/QueryBuilder";
 import { MaintenanceTicket, Prisma } from "../../generated/prisma/client";
+import {
+  deleteFromCloudinary,
+  uploadManyToCloudinary,
+} from "../../utils/cloudinary.utils";
 
 // Tenant — ticket submit
 const createTicket = async (tenant_id: string, payload: CreateTicketInput) => {
@@ -375,6 +379,107 @@ const closeTicket = async (id: string, tenant_id: string) => {
   });
 };
 
+// ---- Images ---- //
+
+const uploadTicketImages = async (
+  ticket_id: string,
+  tenant_id: string,
+  files: Express.Multer.File[],
+) => {
+  const ticket = await prisma.maintenanceTicket.findFirst({
+    where: { id: ticket_id },
+    select: {
+      id: true,
+      tenant_id: true,
+      _count: { select: { images: true } },
+    },
+  });
+
+  if (!ticket) {
+    throw new AppError(StatusCodes.NOT_FOUND, "maintenance ticket not found");
+  }
+
+  if (ticket.tenant_id !== tenant_id) {
+    throw new AppError(StatusCodes.FORBIDDEN, "Not authorized");
+  }
+
+  if (ticket._count.images + files.length > 10) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      `Cannot upload more than 10 images. Current: ${ticket._count.images}`,
+    );
+  }
+
+  // upload to Cloudinary
+  const uploaded = await uploadManyToCloudinary(files, "tickets");
+
+  try {
+    // Save in DB
+    const images = await prisma.$transaction(
+      uploaded.map((result, index) =>
+        prisma.ticketImage.create({
+          data: {
+            ticket_id,
+            url: result.url,
+            public_id: result.public_id,
+          },
+          select: {
+            id: true,
+            url: true,
+            public_id: true,
+          },
+        }),
+      ),
+    );
+
+    return images;
+  } catch (error) {
+    // delete from cloudinary if DB fails
+    await Promise.all(
+      uploaded.map((result) => deleteFromCloudinary(result.public_id)),
+    );
+    throw error;
+  }
+};
+
+const deleteTicketImage = async (image_id: string, tenant_id: string) => {
+  const image = await prisma.ticketImage.findFirst({
+    where: { id: image_id },
+    select: {
+      id: true,
+      public_id: true,
+      ticket_id: true,
+      ticket: { select: { tenant_id: true } },
+    },
+  });
+
+  if (!image) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Image not found");
+  }
+
+  if (image.ticket.tenant_id !== tenant_id) {
+    throw new AppError(StatusCodes.FORBIDDEN, "Not authorized");
+  }
+
+  // Delete from Cloudinary
+  await deleteFromCloudinary(image.public_id);
+
+  //  Delete from DB
+  await prisma.ticketImage.delete({ where: { id: image_id } });
+
+  return { message: "Image deleted successfully" };
+};
+
+const getTicketImages = async (ticket_id: string) => {
+  return prisma.ticketImage.findMany({
+    where: { ticket_id },
+    select: {
+      id: true,
+      url: true,
+    },
+  });
+};
+
 export const maintenanceService = {
   createTicket,
   getMyTickets,
@@ -387,4 +492,7 @@ export const maintenanceService = {
   startTicket,
   resolveTicket,
   closeTicket,
+  uploadTicketImages,
+  getTicketImages,
+  deleteTicketImage,
 };

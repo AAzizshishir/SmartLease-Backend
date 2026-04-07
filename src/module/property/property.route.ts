@@ -7,7 +7,7 @@ import {
   createPropertySchema,
   updatePropertySchema,
 } from "./property.validate";
-// import { multerUpload } from "../../config/multer.config";
+import { upload } from "../../config/multer.config";
 
 const router = Router();
 
@@ -16,12 +16,13 @@ router.get("/", propertyController.getAllProperties); // public route
 // get property by id
 router.get("/:id", propertyController.getPropertyById); // details
 
+router.get("/:property_id/images", propertyController.getPropertyImages);
+
 router.use(authMiddleware(Role.LANDLORD));
 
 // Create Property
 router.post(
   "/",
-  // multerUpload.single("file"),
   validateRequest(createPropertySchema),
   propertyController.createProperty,
 );
@@ -41,5 +42,28 @@ router.delete("/:id", propertyController.deleteProperty);
 
 // restore property
 router.patch("/:id/restore", propertyController.restoreProperty);
+
+// ---- Images ---- //
+
+router.post(
+  "/:property_id/images",
+  authMiddleware(Role.LANDLORD),
+  upload.array("images", 10),
+  propertyController.uploadPropertyImages,
+);
+
+// set primary image
+// router.patch(
+//   "/:unit_id/images/:image_id/primary",
+//   authMiddleware(Role.LANDLORD),
+//   propertyController.setPrimaryImage,
+// );
+
+// delete image
+router.delete(
+  "/:property_id/images/:image_id",
+  authMiddleware(Role.LANDLORD),
+  propertyController.deletePropertyImage,
+);
 
 export const propertyRoutes = router;

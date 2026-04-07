@@ -83,5 +83,5 @@ export const createUnitSchema = z.object({
 
 export const updateUnitSchema = createUnitSchema.partial();
 
-// export type CreateUnitInput = z.infer<typeof createUnitSchema>;
-// export type UpdateUnitInput = z.infer<typeof updateUnitSchema>;
+export type CreateUnitInput = z.infer<typeof createUnitSchema>;
+export type UpdateUnitInput = z.infer<typeof updateUnitSchema>;

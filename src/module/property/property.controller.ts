@@ -128,6 +128,59 @@ const restoreProperty = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// ---- Images ---- //
+
+const uploadPropertyImages = catchAsync(async (req: Request, res: Response) => {
+  const files = req.files as Express.Multer.File[];
+
+  if (!files || files.length === 0) {
+    return sendResponse(res, {
+      statusCode: StatusCodes.BAD_REQUEST,
+      success: false,
+      message: "No images provided",
+      data: null,
+    });
+  }
+
+  const images = await propertyService.uploadPropertyImages(
+    req.params.property_id as string,
+    req.user!.id,
+    files,
+  );
+
+  sendResponse(res, {
+    statusCode: StatusCodes.CREATED,
+    success: true,
+    message: "Images uploaded successfully",
+    data: images,
+  });
+});
+
+const getPropertyImages = catchAsync(async (req: Request, res: Response) => {
+  const images = await propertyService.getPropertyImages(
+    req.params.property_id as string,
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Images fetched successfully",
+    data: images,
+  });
+});
+
+const deletePropertyImage = catchAsync(async (req: Request, res: Response) => {
+  await propertyService.deletePropertyImage(
+    req.params.image_id as string,
+    req.user!.id,
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Image deleted successfully",
+    data: null,
+  });
+});
+
 export const propertyController = {
   createProperty,
   getAllProperties,
@@ -136,4 +189,7 @@ export const propertyController = {
   updateProperty,
   deleteProperty,
   restoreProperty,
+  uploadPropertyImages,
+  getPropertyImages,
+  deletePropertyImage,
 };

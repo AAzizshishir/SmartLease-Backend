@@ -22,12 +22,10 @@ export const createPropertySchema = z.object({
     .max(500, "Cannot exceed 500 units"),
 
   description: z.string().max(500, "Description too long").optional(),
-
-  images: z
-    .array(z.string().url("Each image must be a valid URL"))
-    .max(10, "Cannot upload more than 10 images")
-    .optional(),
 });
 
 // update property validation schema
 export const updatePropertySchema = createPropertySchema.partial();
+
+export type CreatePropertyInput = z.infer<typeof createPropertySchema>;
+export type UpdatePropertyInput = z.infer<typeof updatePropertySchema>;

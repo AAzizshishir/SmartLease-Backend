@@ -1,19 +1,20 @@
 import { StatusCodes } from "http-status-codes";
 import { prisma } from "../../lib/prisma";
 import AppError from "../../utils/AppError";
-import {
-  CreatePropertyPayload,
-  UpdatePropertyPayload,
-} from "./property.interface";
 import { QueryBuilder } from "../../utils/QueryBuilder";
 import { IQueryParams } from "../../interface/query.interface";
 import { Prisma, Property } from "../../generated/prisma/client";
 import { filterableFields, searcableFields } from "./property.constant";
+import { CreatePropertyInput, UpdatePropertyInput } from "./property.validate";
+import {
+  deleteFromCloudinary,
+  uploadManyToCloudinary,
+} from "../../utils/cloudinary.utils";
 
 // Create Property
 const createProperty = async (
   landlord_id: string,
-  payload: CreatePropertyPayload,
+  payload: CreatePropertyInput,
 ) => {
   const existingProperty = await prisma.property.findFirst({
     where: {
@@ -129,7 +130,7 @@ const getPropertyById = async (id: string) => {
 const updateProperty = async (
   id: string,
   landlord_id: string,
-  payload: UpdatePropertyPayload,
+  payload: UpdatePropertyInput,
 ) => {
   const property = await prisma.property.findUnique({
     where: { id, is_deleted: false },
@@ -200,8 +201,7 @@ const deleteProperty = async (id: string, landlord_id: string) => {
   return { message: "Property deleted successfully" };
 };
 
-// property.service.ts
-
+// restore property
 const restoreProperty = async (id: string, landlord_id: string) => {
   const property = await prisma.property.findFirst({
     where: {
@@ -243,6 +243,132 @@ const restoreProperty = async (id: string, landlord_id: string) => {
   return restored;
 };
 
+// ---- Images ---- //
+
+const uploadPropertyImages = async (
+  property_id: string,
+  landlord_id: string,
+  files: Express.Multer.File[],
+) => {
+  const property = await prisma.property.findFirst({
+    where: { id: property_id, is_deleted: false },
+    select: {
+      id: true,
+      landlord_id: true,
+      _count: { select: { images: true } },
+    },
+  });
+
+  if (!property) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Property not found");
+  }
+
+  if (property.landlord_id !== landlord_id) {
+    throw new AppError(StatusCodes.FORBIDDEN, "Not authorized");
+  }
+
+  if (property._count.images + files.length > 10) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      `Cannot upload more than 10 images. Current: ${property._count.images}`,
+    );
+  }
+
+  // upload to Cloudinary
+  const uploaded = await uploadManyToCloudinary(files, "properties");
+
+  const isFirstUpload = property._count.images === 0;
+
+  try {
+    // Save in DB
+    const images = await prisma.$transaction(
+      uploaded.map((result, index) =>
+        prisma.propertyImage.create({
+          data: {
+            property_id,
+            url: result.url,
+            public_id: result.public_id,
+            is_primary: isFirstUpload && index === 0,
+            order: property._count.images + index,
+          },
+          select: {
+            id: true,
+            url: true,
+            public_id: true,
+            is_primary: true,
+            order: true,
+          },
+        }),
+      ),
+    );
+
+    return images;
+  } catch (error) {
+    // delete from cloudinary if DB fails
+    await Promise.all(
+      uploaded.map((result) => deleteFromCloudinary(result.public_id)),
+    );
+    throw error;
+  }
+};
+
+// Delete property image
+const deletePropertyImage = async (image_id: string, landlord_id: string) => {
+  const image = await prisma.propertyImage.findFirst({
+    where: { id: image_id },
+    select: {
+      id: true,
+      public_id: true,
+      is_primary: true,
+      property_id: true,
+      property: { select: { id: true } },
+    },
+  });
+
+  if (!image) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Image not found");
+  }
+
+  if (image.property.id !== landlord_id) {
+    throw new AppError(StatusCodes.FORBIDDEN, "Not authorized");
+  }
+
+  // Delete from Cloudinary
+  await deleteFromCloudinary(image.public_id);
+
+  //  Delete from DB
+  await prisma.unitImage.delete({ where: { id: image_id } });
+
+  if (image.is_primary) {
+    const nextImage = await prisma.propertyImage.findFirst({
+      where: { property_id: image.property_id },
+      orderBy: { order: "asc" },
+    });
+
+    if (nextImage) {
+      await prisma.propertyImage.update({
+        where: { id: nextImage.id },
+        data: { is_primary: true },
+      });
+    }
+  }
+
+  return { message: "Image deleted successfully" };
+};
+
+const getPropertyImages = async (property_id: string) => {
+  return prisma.propertyImage.findMany({
+    where: { property_id },
+    select: {
+      id: true,
+      url: true,
+      is_primary: true,
+      order: true,
+    },
+    orderBy: { order: "asc" },
+  });
+};
+
 export const propertyService = {
   createProperty,
   getAllProperties,
@@ -251,4 +377,7 @@ export const propertyService = {
   updateProperty,
   deleteProperty,
   restoreProperty,
+  uploadPropertyImages,
+  getPropertyImages,
+  deletePropertyImage,
 };

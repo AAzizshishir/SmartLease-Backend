@@ -189,6 +189,59 @@ const closeTicket = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// ---- Images ---- //
+
+const uploadTicketImages = catchAsync(async (req: Request, res: Response) => {
+  const files = req.files as Express.Multer.File[];
+
+  if (!files || files.length === 0) {
+    return sendResponse(res, {
+      statusCode: StatusCodes.BAD_REQUEST,
+      success: false,
+      message: "No images provided",
+      data: null,
+    });
+  }
+
+  const images = await maintenanceService.uploadTicketImages(
+    req.params.ticket_id as string,
+    req.user!.id,
+    files,
+  );
+
+  sendResponse(res, {
+    statusCode: StatusCodes.CREATED,
+    success: true,
+    message: "Images uploaded successfully",
+    data: images,
+  });
+});
+
+const getTicketImages = catchAsync(async (req: Request, res: Response) => {
+  const images = await maintenanceService.getTicketImages(
+    req.params.ticket_id as string,
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Images fetched successfully",
+    data: images,
+  });
+});
+
+const deleteTicketImage = catchAsync(async (req: Request, res: Response) => {
+  await maintenanceService.deleteTicketImage(
+    req.params.image_id as string,
+    req.user!.id,
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Image deleted successfully",
+    data: null,
+  });
+});
+
 export const maintenanceController = {
   createTicket,
   getMyTickets,
@@ -201,4 +254,7 @@ export const maintenanceController = {
   startTicket,
   resolveTicket,
   closeTicket,
+  uploadTicketImages,
+  getTicketImages,
+  deleteTicketImage,
 };
