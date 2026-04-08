@@ -132,7 +132,7 @@ const payNow = async (id: string, tenant_id: string) => {
     throw new AppError(StatusCodes.BAD_REQUEST, "This payment has been waived");
   }
 
-  // TODO: Stripe integration
+  // Done: Stripe integration
   // Stripe checkout session
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
@@ -171,38 +171,6 @@ const payNow = async (id: string, tenant_id: string) => {
   });
 
   return { url: session.url };
-
-  // // For now, simulate Stripe success
-  // const updated = await prisma.$transaction(async (tx) => {
-  //   const updatedPayment = await tx.payment.update({
-  //     where: { id: payment.id },
-  //     data: {
-  //       status: "paid",
-  //       paid_at: new Date(),
-  //     },
-  //     select: {
-  //       id: true,
-  //       status: true,
-  //       type: true,
-  //       amount: true,
-  //       total_amount: true,
-  //       paid_at: true,
-  //       billing_month: true,
-  //     },
-  //   });
-
-  //   // deposit হলে lease update হবে
-  //   if (payment.type === "security_deposit") {
-  //     await tx.lease.update({
-  //       where: { id: payment.lease_id },
-  //       data: { deposit_status: "paid", deposit_paid_at: new Date() },
-  //     });
-  //   }
-
-  //   return updatedPayment;
-  // });
-
-  // return updated;
 };
 
 // Landlord — manually mark as paid (cash/cheque)
