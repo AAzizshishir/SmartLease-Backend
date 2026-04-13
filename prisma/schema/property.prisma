@@ -2,7 +2,6 @@ model Property {
   id                  String            @id @default(uuid(7))
   landlord_id         String
   name                String
-  image               String?
   address             String
   city                String
   type                PropertyType      @default(apartment)
