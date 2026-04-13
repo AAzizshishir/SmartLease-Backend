@@ -13,6 +13,13 @@ const router = Router();
 
 router.get("/", propertyController.getAllProperties); // public route
 
+// get my properties (landlord properties)
+router.get(
+  "/my",
+  authMiddleware(Role.LANDLORD),
+  propertyController.getMyProperties,
+);
+
 // get property by id
 router.get("/:id", propertyController.getPropertyById); // details
 
@@ -26,9 +33,6 @@ router.post(
   validateRequest(createPropertySchema),
   propertyController.createProperty,
 );
-
-// get my properties (landlord properties)
-router.get("/", propertyController.getMyProperties);
 
 // update property
 router.put(

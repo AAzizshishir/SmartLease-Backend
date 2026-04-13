@@ -107,6 +107,7 @@ const getMyProperties = async (landlord_id: string, query: IQueryParams) => {
     .fields()
     .include({
       units: true,
+      images: true,
     })
     .execute();
 
