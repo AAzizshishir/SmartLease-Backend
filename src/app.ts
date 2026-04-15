@@ -8,6 +8,7 @@ import { indexRoutes } from "./routes";
 import { envVariables } from "./config/env";
 import qs from "qs";
 import { webhookController } from "./module/payment/webhook.controller";
+import { errorHandler } from "./middleware/globalErrorHandler";
 
 const app: Application = express();
 
@@ -37,5 +38,7 @@ app.use(cookieParser());
 app.use(notFound);
 
 app.use(express.urlencoded({ extended: true }));
+
+app.use(errorHandler);
 
 export default app;

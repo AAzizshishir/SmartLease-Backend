@@ -118,7 +118,7 @@ const getMyProperties = async (landlord_id: string, query: IQueryParams) => {
 const getPropertyById = async (id: string) => {
   const property = await prisma.property.findUnique({
     where: { id, is_deleted: false },
-    include: { units: { where: { is_deleted: false } } },
+    include: { units: { where: { is_deleted: false } }, images: true },
   });
   if (!property) {
     throw new AppError(StatusCodes.NOT_FOUND, "Property not found");
@@ -322,7 +322,8 @@ const deletePropertyImage = async (image_id: string, landlord_id: string) => {
       public_id: true,
       is_primary: true,
       property_id: true,
-      property: { select: { id: true } },
+
+      property: { select: { id: true, landlord_id: true } },
     },
   });
 
@@ -330,7 +331,7 @@ const deletePropertyImage = async (image_id: string, landlord_id: string) => {
     throw new AppError(StatusCodes.NOT_FOUND, "Image not found");
   }
 
-  if (image.property.id !== landlord_id) {
+  if (image.property.landlord_id !== landlord_id) {
     throw new AppError(StatusCodes.FORBIDDEN, "Not authorized");
   }
 
