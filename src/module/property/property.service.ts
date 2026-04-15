@@ -339,7 +339,7 @@ const deletePropertyImage = async (image_id: string, landlord_id: string) => {
   await deleteFromCloudinary(image.public_id);
 
   //  Delete from DB
-  await prisma.unitImage.delete({ where: { id: image_id } });
+  await prisma.propertyImage.delete({ where: { id: image_id } });
 
   if (image.is_primary) {
     const nextImage = await prisma.propertyImage.findFirst({
