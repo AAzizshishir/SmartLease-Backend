@@ -76,6 +76,9 @@ const getAllVacantUnits = async (query: Record<string, any>) => {
     .where({ status: "vacant", is_deleted: false })
     .paginate()
     .sort()
+    .include({
+      images: true,
+    })
     .fields()
     .execute();
 
@@ -90,6 +93,7 @@ const getUnitById = async (id: string, property_id: string) => {
       property_id,
       is_deleted: false,
     },
+    include: { images: true },
   });
 
   if (!unit) {

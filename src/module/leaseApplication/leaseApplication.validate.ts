@@ -1,18 +1,21 @@
 import { z } from "zod";
 
 export const createLeaseApplicationSchema = z.object({
-  unit_id: z.string("Unit ID is required"),
-  preferred_move_in: z.coerce.date("Preferred move-in date is required"),
-  profession: z.string("Profession is required").min(2),
-  monthly_income: z
-    .number("Monthly income is required and must be number")
-    .positive("Must be greater than 0"),
+  unit_id: z.string(),
+  preferred_move_in: z.coerce.date({
+    message: "Please select a move-in date",
+  }),
+  profession: z.string().min(2, "Profession must be at least 2 characters"),
+  monthly_income: z.number().positive("Monthly income must be greater than 0"),
   work_place_address: z.string().optional(),
   num_occupants: z.number().int().positive().default(1),
   has_pets: z.boolean().default(false),
-  nid_url: z.string().url("Invalid NID URL").optional(),
-  income_proof_url: z.string().url("Invalid URL").optional(),
-  message: z.string().max(500).optional(),
+  nid_url: z.string().url("Invalid URL").optional().or(z.literal("")),
+  income_proof_url: z.string().url("Invalid URL").optional().or(z.literal("")),
+  message: z
+    .string()
+    .max(500, "Message cannot exceed 500 characters")
+    .optional(),
 });
 
 export const rejectApplicationSchema = z.object({

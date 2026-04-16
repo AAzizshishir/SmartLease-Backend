@@ -2,29 +2,26 @@ import { z } from "zod";
 
 export const createUnitSchema = z.object({
   unit_number: z
-    .string("Unit number is required")
+    .string()
     .min(1, "Unit number is required")
     .max(10, "Unit number too long"),
 
   floor: z
-    .number("Floor is required")
+    .number()
     .int("Must be a whole number")
     .min(0, "Floor cannot be negative"),
 
-  type: z.enum(
-    ["studio", "one_bed", "two_bed", "three_bed", "four_bed", "penthouse"],
-    {
-      error:
-        "Type must be studio, one_bed, two_bed, three_bed, four_bed or penthouse",
-    },
-  ),
+  type: z.enum([
+    "studio",
+    "one_bed",
+    "two_bed",
+    "three_bed",
+    "four_bed",
+    "penthouse",
+  ]),
 
   furnishing_status: z
-    .enum(["unfurnished", "semi_furnished", "fully_furnished"], {
-      error:
-        "Furnishing status must be unfurnished, semi_furnished or fully_furnished",
-    })
-    .optional()
+    .enum(["unfurnished", "semi_furnished", "fully_furnished"])
     .default("unfurnished"),
 
   area_sqft: z
@@ -34,13 +31,13 @@ export const createUnitSchema = z.object({
     .optional(),
 
   bedrooms: z
-    .number("Bedrooms is required")
+    .number()
     .int("Must be a whole number")
     .min(0, "Cannot be negative")
     .max(10, "Cannot exceed 10 bedrooms"),
 
   bathrooms: z
-    .number("Bathrooms is required")
+    .number()
     .int("Must be a whole number")
     .min(1, "Must have at least 1 bathroom")
     .max(10, "Cannot exceed 10 bathrooms"),
@@ -54,7 +51,7 @@ export const createUnitSchema = z.object({
     .default(0),
 
   monthly_rent: z
-    .number("Monthly rent is required")
+    .number()
     .positive("Rent must be greater than 0")
     .max(1000000, "Rent seems too high"),
 
@@ -66,7 +63,6 @@ export const createUnitSchema = z.object({
     .optional()
     .default(2),
 
-  // amenities
   has_parking: z.boolean().optional().default(false),
   has_ac: z.boolean().optional().default(false),
   has_lift: z.boolean().optional().default(false),
