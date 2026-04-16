@@ -66,6 +66,20 @@ const getLandlordApplications = catchAsync(
   },
 );
 
+const getApplicationDetails = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await leaseApplicationService.getApplicationDetails(
+      req?.params?.id as string,
+    );
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Application fetched successfully",
+      data: result,
+    });
+  },
+);
+
 const approveApplication = catchAsync(async (req: Request, res: Response) => {
   const result = await leaseApplicationService.approveApplication(
     req.params.id as string,
@@ -100,6 +114,7 @@ export const leaseApplicationController = {
   getTenantApplications,
   cancelApplication,
   getLandlordApplications,
+  getApplicationDetails,
   approveApplication,
   rejectApplication,
 };

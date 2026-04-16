@@ -183,8 +183,37 @@ const getLandlordApplications = async (
   return result;
 };
 
-// Landlord - approved application
-const approveApplication = async (id: string, landlord_id: string) => {
+const getApplicationDetails = async (id: string) => {
+  const application = await prisma.leaseApplication.findUnique({
+    where: { id },
+    include: {
+      unit: {
+        select: {
+          unit_number: true,
+          floor: true,
+          property: {
+            select: {
+              id: true,
+              name: true,
+              city: true,
+            },
+          },
+        },
+      },
+      tenant: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  return application;
+};
+
+// Shared validation For Approve and reject
+const getAndValidateApplication = async (id: string, landlord_id: string) => {
   const application = await prisma.leaseApplication.findFirst({
     where: { id },
     select: {
@@ -195,44 +224,40 @@ const approveApplication = async (id: string, landlord_id: string) => {
       unit: {
         select: {
           status: true,
-          property: {
-            select: { landlord_id: true },
-          },
+          property: { select: { landlord_id: true } },
         },
       },
     },
   });
 
-  if (!application) {
+  if (!application)
     throw new AppError(StatusCodes.NOT_FOUND, "Application not found");
-  }
-
-  if (application.unit.property.landlord_id !== landlord_id) {
+  if (application.unit.property.landlord_id !== landlord_id)
     throw new AppError(StatusCodes.FORBIDDEN, "Not authorized");
-  }
-
-  if (application.status !== "pending") {
+  if (application.status !== "pending")
     throw new AppError(
       StatusCodes.BAD_REQUEST,
-      "Only pending applications can be approved",
+      "Only pending applications can be processed",
     );
-  }
 
-  if (application.unit.status !== "vacant") {
+  return application;
+};
+
+// Landlord - approved application
+const approveApplication = async (id: string, landlord_id: string) => {
+  const application = await getAndValidateApplication(id, landlord_id);
+  if (application.unit.status !== "vacant")
     throw new AppError(
       StatusCodes.BAD_REQUEST,
       "This unit is no longer available",
     );
-  }
 
   await prisma.$transaction(async (tx) => {
-    // application approve
     await tx.leaseApplication.update({
       where: { id },
       data: { status: "approved", reviewed_at: new Date() },
     });
 
-    // rest pending applications reject
     await tx.leaseApplication.updateMany({
       where: {
         unit_id: application.unit_id,
@@ -250,56 +275,38 @@ const approveApplication = async (id: string, landlord_id: string) => {
       where: { id: application.unit_id },
       data: { status: "reserved" },
     });
+
+    // 🔹 Optional: create lease record immediately
+    // await tx.lease.create({ data: { unit_id: application.unit_id, tenant_id: application.tenant_id } });
   });
 
   return { message: "Application approved successfully" };
 };
 
-// Landlord — application reject করো
+// Reject
 const rejectApplication = async (
   id: string,
   landlord_id: string,
   payload: RejectApplicationInput,
 ) => {
-  const application = await prisma.leaseApplication.findFirst({
-    where: { id },
-    select: {
-      id: true,
-      status: true,
-      unit: {
-        select: {
-          property: { select: { landlord_id: true } },
-        },
-      },
-    },
-  });
-
-  if (!application) {
-    throw new AppError(StatusCodes.NOT_FOUND, "Application not found");
-  }
-
-  if (application.unit.property.landlord_id !== landlord_id) {
-    throw new AppError(StatusCodes.FORBIDDEN, "Not authorized");
-  }
-
-  if (application.status !== "pending") {
+  const application = await getAndValidateApplication(id, landlord_id);
+  if (application.unit.status !== "vacant")
     throw new AppError(
       StatusCodes.BAD_REQUEST,
-      "Only pending applications can be rejected",
+      "This unit is no longer available",
     );
-  }
 
-  const updated = await prisma.leaseApplication.update({
-    where: { id },
-    data: {
-      status: "rejected",
-      rejection_reason: payload.rejection_reason,
-      reviewed_at: new Date(),
-    },
-    select: { id: true, status: true, rejection_reason: true },
+  return prisma.$transaction(async (tx) => {
+    return tx.leaseApplication.update({
+      where: { id },
+      data: {
+        status: "rejected",
+        rejection_reason: payload.rejection_reason,
+        reviewed_at: new Date(),
+      },
+      select: { id: true, status: true, rejection_reason: true },
+    });
   });
-
-  return updated;
 };
 
 export const leaseApplicationService = {
@@ -307,6 +314,7 @@ export const leaseApplicationService = {
   getTenantApplications,
   cancelApplication,
   getLandlordApplications,
+  getApplicationDetails,
   approveApplication,
   rejectApplication,
 };

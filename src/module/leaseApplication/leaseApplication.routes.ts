@@ -37,14 +37,16 @@ router.get(
   leaseApplicationController.getLandlordApplications,
 );
 
+router.get("/:id", leaseApplicationController.getApplicationDetails);
+
 router.patch(
-  "/:id/approve",
+  "/landlord/:id/approve",
   authMiddleware(Role.LANDLORD),
   leaseApplicationController.approveApplication,
 );
 
 router.patch(
-  "/:id/reject",
+  "/landlord/:id/reject",
   authMiddleware(Role.LANDLORD),
   validateRequest(rejectApplicationSchema),
   leaseApplicationController.rejectApplication,
