@@ -19,9 +19,9 @@ router.post(
 );
 
 router.get(
-  "/",
+  "/tenant",
   authMiddleware(Role.TENANT),
-  leaseApplicationController.getMyApplications,
+  leaseApplicationController.getTenantApplications,
 );
 
 router.patch(
@@ -32,9 +32,9 @@ router.patch(
 
 // ---- Applications — Landlord ----
 router.get(
-  "/:unit_id",
+  "/landlord",
   authMiddleware(Role.LANDLORD),
-  leaseApplicationController.getUnitApplications,
+  leaseApplicationController.getLandlordApplications,
 );
 
 router.patch(

@@ -84,7 +84,10 @@ const applyForUnit = async (
 };
 
 // Tenant — নিজের applications দেখো
-const getMyApplications = async (tenant_id: string, query: IQueryParams) => {
+const getTenantApplications = async (
+  tenant_id: string,
+  query: IQueryParams,
+) => {
   const result = await new QueryBuilder<
     LeaseApplication,
     Prisma.LeaseApplicationWhereInput,
@@ -130,30 +133,10 @@ const cancelApplication = async (id: string, tenant_id: string) => {
 };
 
 // Landlord — property-র applications দেখো
-const getUnitApplications = async (
-  unit_id: string,
+const getLandlordApplications = async (
   landlord_id: string,
   query: IQueryParams,
 ) => {
-  const unit = await prisma.unit.findFirst({
-    where: { id: unit_id, is_deleted: false },
-    select: {
-      id: true,
-      unit_number: true,
-      property: {
-        select: { landlord_id: true },
-      },
-    },
-  });
-
-  if (!unit) {
-    throw new AppError(StatusCodes.NOT_FOUND, "Unit not found");
-  }
-
-  if (unit.property.landlord_id !== landlord_id) {
-    throw new AppError(StatusCodes.FORBIDDEN, "Not authorized");
-  }
-
   const result = await new QueryBuilder<
     LeaseApplication,
     Prisma.LeaseApplicationWhereInput,
@@ -163,8 +146,37 @@ const getUnitApplications = async (
     defaultSortBy: "created_at",
   })
     .filter()
-    .where({ unit_id, status: { not: "cancelled" } })
+    .where({
+      status: { not: "cancelled" },
+      unit: {
+        property: {
+          landlord_id: landlord_id,
+        },
+      },
+      ...(query.unit_id ? { unit_id: query.unit_id } : {}),
+    })
     .sort()
+    .include({
+      unit: {
+        select: {
+          unit_number: true,
+          floor: true,
+          property: {
+            select: {
+              id: true,
+              name: true,
+              city: true,
+            },
+          },
+        },
+      },
+      tenant: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+    })
     .paginate()
     .execute();
 
@@ -292,9 +304,9 @@ const rejectApplication = async (
 
 export const leaseApplicationService = {
   applyForUnit,
-  getMyApplications,
+  getTenantApplications,
   cancelApplication,
-  getUnitApplications,
+  getLandlordApplications,
   approveApplication,
   rejectApplication,
 };

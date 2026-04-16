@@ -18,20 +18,22 @@ const applyForUnit = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getMyApplications = catchAsync(async (req: Request, res: Response) => {
-  const result = await leaseApplicationService.getMyApplications(
-    req.user!.id,
-    req.query as any,
-  );
+const getTenantApplications = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await leaseApplicationService.getTenantApplications(
+      req.user!.id,
+      req.query as any,
+    );
 
-  sendResponse(res, {
-    statusCode: StatusCodes.OK,
-    success: true,
-    message: "Applications fetched successfully",
-    data: result.data,
-    meta: result.meta,
-  });
-});
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Applications fetched successfully",
+      data: result.data,
+      meta: result.meta,
+    });
+  },
+);
 
 const cancelApplication = catchAsync(async (req: Request, res: Response) => {
   const result = await leaseApplicationService.cancelApplication(
@@ -47,21 +49,22 @@ const cancelApplication = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getUnitApplications = catchAsync(async (req: Request, res: Response) => {
-  const result = await leaseApplicationService.getUnitApplications(
-    req.params.unit_id as string,
-    req.user!.id,
-    req.query as any,
-  );
+const getLandlordApplications = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await leaseApplicationService.getLandlordApplications(
+      req.user!.id,
+      req.query as any,
+    );
 
-  sendResponse(res, {
-    statusCode: StatusCodes.OK,
-    success: true,
-    message: "Applications fetched successfully",
-    data: result.data,
-    meta: result.meta,
-  });
-});
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Applications fetched successfully",
+      data: result.data,
+      meta: result.meta,
+    });
+  },
+);
 
 const approveApplication = catchAsync(async (req: Request, res: Response) => {
   const result = await leaseApplicationService.approveApplication(
@@ -94,9 +97,9 @@ const rejectApplication = catchAsync(async (req: Request, res: Response) => {
 
 export const leaseApplicationController = {
   applyForUnit,
-  getMyApplications,
+  getTenantApplications,
   cancelApplication,
-  getUnitApplications,
+  getLandlordApplications,
   approveApplication,
   rejectApplication,
 };
