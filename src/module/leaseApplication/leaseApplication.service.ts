@@ -191,9 +191,11 @@ const getApplicationDetails = async (id: string) => {
         select: {
           unit_number: true,
           floor: true,
+          monthly_rent: true,
           property: {
             select: {
               id: true,
+              landlord_id: true,
               name: true,
               city: true,
             },
@@ -202,6 +204,7 @@ const getApplicationDetails = async (id: string) => {
       },
       tenant: {
         select: {
+          id: true,
           name: true,
           email: true,
         },
