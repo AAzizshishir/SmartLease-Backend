@@ -135,6 +135,9 @@ const getMyLease = async (tenant_id: string) => {
           },
         },
       },
+      tenant: {
+        select: { name: true, email: true },
+      },
     },
   });
 
@@ -251,10 +254,66 @@ const getLandlordLeases = async (landlord_id: string, query: IQueryParams) => {
     .filter()
     .where({ landlord_id } as any)
     .sort()
+    .include({
+      unit: {
+        select: {
+          unit_number: true,
+          floor: true,
+          monthly_rent: true,
+          property: {
+            select: {
+              id: true,
+              landlord_id: true,
+              name: true,
+              city: true,
+            },
+          },
+        },
+      },
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    })
     .paginate()
     .execute();
 
   return result;
+};
+
+const getLeaseDetails = async (id: string) => {
+  const lease = await prisma.lease.findFirst({
+    where: { id },
+    include: {
+      unit: {
+        select: {
+          unit_number: true,
+          floor: true,
+          monthly_rent: true,
+          property: {
+            select: {
+              id: true,
+              landlord_id: true,
+              name: true,
+              city: true,
+            },
+          },
+        },
+      },
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  return lease;
 };
 
 // Landlord — lease terminate করো
@@ -303,5 +362,6 @@ export const leaseService = {
   getMyLease,
   confirmLease,
   getLandlordLeases,
+  getLeaseDetails,
   terminateLease,
 };

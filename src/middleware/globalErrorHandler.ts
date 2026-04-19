@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import AppError from "../utils/AppError";
 import { Prisma } from "../generated/prisma/client";
 import { envVariables } from "../config/env";
+import { ZodError } from "zod";
 
 export const errorHandler = (
   err: Error,

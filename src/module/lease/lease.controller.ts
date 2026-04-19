@@ -55,6 +55,18 @@ const getLandlordLeases = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getLeaseDetails = catchAsync(async (req: Request, res: Response) => {
+  const result = await leaseService.getLeaseDetails(
+    req?.params?.lease_id as string,
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Lease fetched successfully",
+    data: result,
+  });
+});
+
 const terminateLease = catchAsync(async (req: Request, res: Response) => {
   const result = await leaseService.terminateLease(
     req.params.id as string,
@@ -74,5 +86,6 @@ export const leaseController = {
   getMyLease,
   confirmLease,
   getLandlordLeases,
+  getLeaseDetails,
   terminateLease,
 };

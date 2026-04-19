@@ -7,11 +7,18 @@ import { leaseController } from "./lease.controller";
 
 const router = Router();
 
+// Tenant
+router.get(
+  "/my-lease",
+  authMiddleware(Role.TENANT),
+  leaseController.getMyLease,
+);
+
 // Landlord
 router.post(
   "/:application_id",
   authMiddleware(Role.LANDLORD),
-  validateRequest(createLeaseSchema),
+  // validateRequest(createLeaseSchema),
   leaseController.createLease,
 );
 
@@ -21,17 +28,17 @@ router.get(
   leaseController.getLandlordLeases,
 );
 
+// Lease Details api
+router.get(
+  "/:lease_id",
+  authMiddleware(Role.LANDLORD),
+  leaseController.getLeaseDetails,
+);
+
 router.patch(
   "/:id/terminate",
   authMiddleware(Role.LANDLORD),
   leaseController.terminateLease,
-);
-
-// Tenant
-router.get(
-  "/my-lease",
-  authMiddleware(Role.TENANT),
-  leaseController.getMyLease,
 );
 
 router.patch(

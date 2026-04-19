@@ -160,8 +160,8 @@ const payNow = async (id: string, tenant_id: string) => {
       type: payment.type,
       lease_id: payment.lease_id,
     },
-    success_url: `${envVariables.APP_URL}/payments/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${envVariables.APP_URL}/payments/cancel`,
+    success_url: `${envVariables.APP_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${envVariables.APP_URL}/payment/cancel`,
   });
 
   // session id DB-তে রাখো

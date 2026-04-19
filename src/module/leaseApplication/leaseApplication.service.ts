@@ -99,6 +99,27 @@ const getTenantApplications = async (
     .filter()
     .where({ tenant_id } as any)
     .sort()
+    .include({
+      unit: {
+        select: {
+          unit_number: true,
+          floor: true,
+          property: {
+            select: {
+              id: true,
+              name: true,
+              city: true,
+            },
+          },
+        },
+      },
+      tenant: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+    })
     .paginate()
     .execute();
 
