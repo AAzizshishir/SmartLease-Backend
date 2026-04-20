@@ -5,10 +5,11 @@ import { authMiddleware } from "../../middleware/auth.middleware";
 import validateRequest from "../../middleware/validateRequest";
 import { Role } from "../../generated/prisma/enums";
 import { updateUserSchema } from "./user.validate";
+import { upload } from "../../config/multer.config";
 
 const router = Router();
 
-// ─── Logged in user — যেকোনো role ───────────────
+// -------- Logged in user — any role -------- //
 router.get(
   "/me",
   authMiddleware(Role.ADMIN, Role.LANDLORD, Role.TENANT),
@@ -18,16 +19,9 @@ router.get(
 router.patch(
   "/me",
   authMiddleware(Role.ADMIN, Role.LANDLORD, Role.TENANT),
-  validateRequest(updateUserSchema),
+  upload.single("image"),
   userController.updateMe,
 );
-
-// router.patch(
-//   "/me/avatar",
-//   authMiddleware(),
-//   upload.single("image"),
-//   userController.updateAvatar
-// );
 
 router.delete(
   "/me",
@@ -40,16 +34,11 @@ router.get("/", authMiddleware(Role.ADMIN), userController.getAllUsers);
 
 router.get("/:id", authMiddleware(Role.ADMIN), userController.getUserById);
 
+// Update Status
 router.patch(
-  "/:id/block",
+  "/:id",
   authMiddleware(Role.ADMIN),
-  userController.blockUser,
-);
-
-router.patch(
-  "/:id/unblock",
-  authMiddleware(Role.ADMIN),
-  userController.unblockUser,
+  userController.updateUserStatus,
 );
 
 router.delete(

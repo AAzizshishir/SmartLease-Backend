@@ -20,37 +20,15 @@ const getMe = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateMe = catchAsync(async (req: Request, res: Response) => {
-  const user = await userService.updateMe(req.user!.id, req.body);
+  const result = await userService.updateMe(req.user!.id, req.body, req.file);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: "Profile fetched successfully",
-    data: user,
+    message: "Profile updated successfully",
+    data: result,
   });
 });
-
-// const updateAvatar = catchAsync(async (req: Request, res: Response) => {
-//   const file = req.file;
-
-//   if (!file) {
-//     return sendResponse(res, {
-//       statusCode: StatusCodes.BAD_REQUEST,
-//       success: false,
-//       message: "Image is required",
-//       data: null,
-//     });
-//   }
-
-//   const user = await userService.updateAvatar(req.user!.id, file);
-
-//   sendResponse(res, {
-//     statusCode: StatusCodes.OK,
-//     success: true,
-//     message: "Avatar updated successfully",
-//     data: user,
-//   });
-// });
 
 const deleteMe = catchAsync(async (req: Request, res: Response) => {
   await userService.deleteMe(req.user!.id);
@@ -91,23 +69,16 @@ const getUserById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const blockUser = catchAsync(async (req: Request, res: Response) => {
-  const user = await userService.blockUser(req.params.id as string);
-  sendResponse(res, {
-    statusCode: StatusCodes.OK,
-    success: true,
-    message: "User blocked successfully",
-    data: user,
-  });
-});
-
-const unblockUser = catchAsync(async (req: Request, res: Response) => {
-  const user = await userService.unblockUser(req.params.id as string);
+const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
+  console.log(req.body);
+  const { id } = req.params;
+  const { status } = req.body;
+  const user = await userService.updateUserStatus(id as string, status);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: "User unblocked successfully",
+    message: "User Update successfully",
     data: user,
   });
 });
@@ -126,11 +97,9 @@ const adminDeleteUser = catchAsync(async (req: Request, res: Response) => {
 export const userController = {
   getMe,
   updateMe,
-  //   updateAvatar,
   deleteMe,
   getAllUsers,
   getUserById,
-  blockUser,
-  unblockUser,
+  updateUserStatus,
   adminDeleteUser,
 };

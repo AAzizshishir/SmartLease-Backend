@@ -5,6 +5,7 @@ import { UpdateUserInput } from "./user.interface";
 import { QueryBuilder } from "../../utils/QueryBuilder";
 import { IQueryParams } from "../../interface/query.interface";
 import { Prisma, User } from "../../generated/prisma/client";
+import { uploadToCloudinary } from "../../utils/cloudinary.utils";
 
 // profile
 const getMe = async (id: string) => {
@@ -20,32 +21,50 @@ const getMe = async (id: string) => {
 };
 
 // profile update
-const updateMe = async (id: string, payload: UpdateUserInput) => {
-  const user = await prisma.user.findFirst({
-    where: { id, is_deleted: false },
-  });
+// const updateMe = async (id: string, payload: UpdateUserInput) => {
+//   const user = await prisma.user.findFirst({
+//     where: { id, is_deleted: false },
+//   });
 
-  if (!user) {
-    throw new AppError(StatusCodes.NOT_FOUND, "User not found");
-  }
+//   if (!user) {
+//     throw new AppError(StatusCodes.NOT_FOUND, "User not found");
+//   }
 
-  const updated = await prisma.user.update({
-    where: { id },
-    data: { ...payload },
-  });
-
-  return updated;
-};
-
-// avatar update
-// const updateAvatar = async (id: string, imageUrl: string) => {
 //   const updated = await prisma.user.update({
 //     where: { id },
-//     data: { image: imageUrl },
+//     data: { ...payload },
 //   });
 
 //   return updated;
 // };
+
+const updateMe = async (
+  id: string,
+  payload: any,
+  file?: Express.Multer.File,
+) => {
+  let imageUrl: string | undefined;
+
+  if (file) {
+    const result = await uploadToCloudinary(file, "avatars");
+    imageUrl = result.url;
+  }
+
+  return prisma.user.update({
+    where: { id },
+    data: {
+      ...(payload.name && { name: payload.name }),
+      ...(imageUrl && { image: imageUrl }),
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      role: true,
+    },
+  });
+};
 
 // account delete — soft delete
 
@@ -193,8 +212,8 @@ const getUserById = async (id: string) => {
   return user;
 };
 
-// block user
-const blockUser = async (id: string) => {
+// Update user status
+const updateUserStatus = async (id: string, status: "ACTIVE" | "BLOCKED") => {
   const user = await prisma.user.findFirst({
     where: { id, is_deleted: false },
     select: { id: true, status: true, role: true },
@@ -204,40 +223,20 @@ const blockUser = async (id: string) => {
     throw new AppError(StatusCodes.NOT_FOUND, "User not found");
   }
 
-  if (user.role === "ADMIN") {
+  if (user.role === "ADMIN" && status === "BLOCKED") {
     throw new AppError(StatusCodes.FORBIDDEN, "Cannot block an admin");
   }
 
-  if (user.status === "BLOCKED") {
-    throw new AppError(StatusCodes.BAD_REQUEST, "User is already blocked");
+  if (user.status === status) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      `User is already ${status.toLowerCase()}`,
+    );
   }
 
   const updated = await prisma.user.update({
     where: { id },
-    data: { status: "BLOCKED" },
-  });
-
-  return updated;
-};
-
-// unblock user
-const unblockUser = async (id: string) => {
-  const user = await prisma.user.findFirst({
-    where: { id, is_deleted: false },
-    select: { id: true, status: true },
-  });
-
-  if (!user) {
-    throw new AppError(StatusCodes.NOT_FOUND, "User not found");
-  }
-
-  if (user.status === "ACTIVE") {
-    throw new AppError(StatusCodes.BAD_REQUEST, "User is already active");
-  }
-
-  const updated = await prisma.user.update({
-    where: { id },
-    data: { status: "ACTIVE" },
+    data: { status },
   });
 
   return updated;
@@ -273,11 +272,9 @@ const adminDeleteUser = async (id: string) => {
 export const userService = {
   getMe,
   updateMe,
-  //   updateAvatar,
   deleteMe,
   getAllUsers,
   getUserById,
-  blockUser,
-  unblockUser,
+  updateUserStatus,
   adminDeleteUser,
 };
