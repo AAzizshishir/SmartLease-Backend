@@ -2,9 +2,7 @@
 import { Router } from "express";
 import { userController } from "./user.controller";
 import { authMiddleware } from "../../middleware/auth.middleware";
-import validateRequest from "../../middleware/validateRequest";
 import { Role } from "../../generated/prisma/enums";
-import { updateUserSchema } from "./user.validate";
 import { upload } from "../../config/multer.config";
 
 const router = Router();
