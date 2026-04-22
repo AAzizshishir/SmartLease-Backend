@@ -26,4 +26,37 @@ export const auth = betterAuth({
       },
     },
   },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7,
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 60 * 24 * 7,
+    },
+  },
+  advanced: {
+    cookiePrefix: "better-auth",
+    useSecureCookies: process.env.NODE_ENV === "production",
+    crossSubDomainCookies: {
+      enabled: false,
+    },
+    disableCSRFCheck: true, // Allow requests without Origin header (Postman, mobile apps, etc.)
+  },
+  cookies: {
+    sessionToken: {
+      attributes: {
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        httpOnly: true,
+        path: "/",
+      },
+    },
+    sessionData: {
+      attributes: {
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        httpOnly: true,
+        path: "/",
+      },
+    },
+  },
 });
