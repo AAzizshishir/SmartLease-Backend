@@ -13,7 +13,7 @@ const app: Application = express();
 
 const allowedOrigins = [
   process.env.LOCAL_APP_URL || "http://localhost:3000",
-  process.env.APP_URL || "https://pharmacare-frontend-omega.vercel.app",
+  process.env.APP_URL || "http://localhost:3000",
 ].filter(Boolean);
 
 app.post(
