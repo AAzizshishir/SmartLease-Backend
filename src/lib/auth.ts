@@ -45,7 +45,7 @@ export const auth = betterAuth({
   cookies: {
     sessionToken: {
       attributes: {
-        sameSite: "lax",
+        sameSite: "none",
         secure: process.env.NODE_ENV === "production",
         httpOnly: true,
         path: "/",
@@ -53,7 +53,7 @@ export const auth = betterAuth({
     },
     sessionData: {
       attributes: {
-        sameSite: "lax",
+        sameSite: "none",
         secure: process.env.NODE_ENV === "production",
         httpOnly: true,
         path: "/",
