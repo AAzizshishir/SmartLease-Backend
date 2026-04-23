@@ -7,10 +7,29 @@ import { auth as betterAuth } from "../lib/auth";
 export const authMiddleware = (...roles: Role[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // 1. Better Auth দিয়ে session validate করো
-      // এটাই যথেষ্ট — DB check আলাদা করে দরকার নেই
+      const token =
+        req.cookies["__secure-session_token"] || req.cookies["session_token"];
+
+      const cookieName = req.cookies["__secure-session_token"]
+        ? "__secure-session_token"
+        : "session_token";
+
+      // convert headers safely
+      const headers: Record<string, string> = {};
+
+      for (const [key, value] of Object.entries(req.headers)) {
+        if (typeof value === "string") {
+          headers[key] = value;
+        }
+      }
+
+      // attach cookie manually
+      if (token) {
+        headers["cookie"] = `${cookieName}=${token}`;
+      }
+
       const session = await betterAuth.api.getSession({
-        headers: req.headers as any,
+        headers,
       });
 
       // 2. Session নেই
