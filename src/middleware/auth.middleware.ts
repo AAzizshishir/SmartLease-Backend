@@ -7,29 +7,8 @@ import { auth as betterAuth } from "../lib/auth";
 export const authMiddleware = (...roles: Role[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token =
-        req.cookies["__secure-session_token"] || req.cookies["session_token"];
-
-      const cookieName = req.cookies["__secure-session_token"]
-        ? "__secure-session_token"
-        : "session_token";
-
-      // convert headers safely
-      const headers: Record<string, string> = {};
-
-      for (const [key, value] of Object.entries(req.headers)) {
-        if (typeof value === "string") {
-          headers[key] = value;
-        }
-      }
-
-      // attach cookie manually
-      if (token) {
-        headers["cookie"] = `${cookieName}=${token}`;
-      }
-
       const session = await betterAuth.api.getSession({
-        headers,
+        headers: req.headers as any,
       });
 
       // 2. Session নেই
