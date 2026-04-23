@@ -16,14 +16,6 @@ const allowedOrigins = [
   process.env.APP_URL || "https://smartlease-frontend.vercel.app",
 ].filter(Boolean);
 
-app.post(
-  "/api/webhooks/stripe",
-  express.raw({ type: "application/json" }),
-  webhookController.handleWebhook,
-);
-
-app.set("query parser", (str: string) => qs.parse(str));
-
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -49,6 +41,14 @@ app.use(
     exposedHeaders: ["Set-Cookie"],
   }),
 );
+
+app.post(
+  "/api/webhooks/stripe",
+  express.raw({ type: "application/json" }),
+  webhookController.handleWebhook,
+);
+
+app.set("query parser", (str: string) => qs.parse(str));
 
 app.use(express.json());
 
