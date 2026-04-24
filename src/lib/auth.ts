@@ -46,7 +46,7 @@ export const auth = betterAuth({
     sessionToken: {
       attributes: {
         sameSite: "none",
-        secure: process.env.NODE_ENV === "production",
+        secure: "true",
         httpOnly: true,
         path: "/",
       },
@@ -54,7 +54,7 @@ export const auth = betterAuth({
     sessionData: {
       attributes: {
         sameSite: "none",
-        secure: process.env.NODE_ENV === "production",
+        secure: "true",
         httpOnly: true,
         path: "/",
       },
