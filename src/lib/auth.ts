@@ -33,20 +33,52 @@ export const auth = betterAuth({
       maxAge: 60 * 60 * 24 * 7,
     },
   },
+  // advanced: {
+  //   cookiePrefix: "better-auth",
+  //   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  //   useSecureCookies: process.env.NODE_ENV === "production",
+  //   crossSubDomainCookies: {
+  //     enabled: false,
+  //   },
+  //   disableCSRFCheck: true, // Allow requests without Origin header (Postman, mobile apps, etc.)
+  // },
+  // cookies: {
+  //   sessionToken: {
+  //     attributes: {
+  //       sameSite: "none",
+  //       secure: "true",
+  //       httpOnly: true,
+  //       path: "/",
+  //     },
+  //   },
+  //   sessionData: {
+  //     attributes: {
+  //       sameSite: "none",
+  //       secure: "true",
+  //       httpOnly: true,
+  //       path: "/",
+  //     },
+  //   },
+  // },
   advanced: {
     cookiePrefix: "better-auth",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    useSecureCookies: process.env.NODE_ENV === "production",
+    useSecureCookies: true,
     crossSubDomainCookies: {
       enabled: false,
     },
-    disableCSRFCheck: true, // Allow requests without Origin header (Postman, mobile apps, etc.)
+    disableCSRFCheck: true,
+    defaultCookieAttributes: {
+      sameSite: "none", // ← এটা যোগ করো
+      secure: true,
+      httpOnly: true,
+      path: "/",
+    },
   },
   cookies: {
     sessionToken: {
       attributes: {
         sameSite: "none",
-        secure: "true",
+        secure: true,
         httpOnly: true,
         path: "/",
       },
@@ -54,7 +86,7 @@ export const auth = betterAuth({
     sessionData: {
       attributes: {
         sameSite: "none",
-        secure: "true",
+        secure: true,
         httpOnly: true,
         path: "/",
       },
