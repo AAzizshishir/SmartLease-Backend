@@ -7,6 +7,9 @@ import { auth as betterAuth } from "../lib/auth";
 export const authMiddleware = (...roles: Role[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
+      console.log("cookies:", req.cookies);
+      console.log("headers cookie:", req.headers.cookie);
+
       const session = await betterAuth.api.getSession({
         headers: req.headers as any,
       });

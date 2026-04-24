@@ -49,19 +49,14 @@ app.post(
 );
 
 app.set("query parser", (str: string) => qs.parse(str));
-
-app.use(express.json());
-
-app.all("/api/auth/*splat", toNodeHandler(auth));
-
-app.use("/api", indexRoutes);
-
 app.use(cookieParser());
-
-app.use(notFound);
-
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.all("/api/auth/*splat", toNodeHandler(auth));
+app.use("/api", indexRoutes);
+
+app.use(notFound);
 app.use(errorHandler);
 
 export default app;
