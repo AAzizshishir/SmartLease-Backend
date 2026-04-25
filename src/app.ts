@@ -13,7 +13,7 @@ const app: Application = express();
 
 const allowedOrigins = [
   process.env.LOCAL_APP_URL || "http://localhost:3000",
-  process.env.APP_URL || "https://smartlease-frontend.vercel.app",
+  process.env.APP_URL || "https://smartlease-frontend.onrender.com",
 ].filter(Boolean);
 
 app.use(
