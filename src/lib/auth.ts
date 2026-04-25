@@ -8,7 +8,11 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  trustedOrigins: [envVariables.APP_URL!],
+  trustedOrigins: [
+    "http://localhost:3000",
+    "https://smartlease-frontend.onrender.com",
+    "https://smartlease-frontend.vercel.app",
+  ],
   emailAndPassword: {
     enabled: true,
   },
