@@ -37,6 +37,40 @@ export const auth = betterAuth({
       maxAge: 60 * 60 * 24 * 7,
     },
   },
+
+  // advanced: {
+  //   cookiePrefix: "better-auth",
+  //   useSecureCookies: true,
+  //   crossSubDomainCookies: {
+  //     enabled: false,
+  //   },
+  //   disableCSRFCheck: true,
+  //   defaultCookieAttributes: {
+  //     sameSite: "none",
+  //     secure: true,
+  //     httpOnly: true,
+  //     path: "/",
+  //     domain: "smartlease-backend.onrender.com",
+  //   },
+  // },
+  // cookies: {
+  //   sessionToken: {
+  //     attributes: {
+  //       sameSite: "none",
+  //       secure: true,
+  //       httpOnly: true,
+  //       path: "/",
+  //     },
+  //   },
+  //   sessionData: {
+  //     attributes: {
+  //       sameSite: "none",
+  //       secure: true,
+  //       httpOnly: true,
+  //       path: "/",
+  //     },
+  //   },
+  // },
   advanced: {
     cookiePrefix: "better-auth",
     useSecureCookies: true,
@@ -46,17 +80,20 @@ export const auth = betterAuth({
     disableCSRFCheck: true,
     defaultCookieAttributes: {
       sameSite: "none",
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
       path: "/",
-      domain: "smartlease-backend.onrender.com",
+      domain:
+        process.env.NODE_ENV === "production"
+          ? "smartlease-backend.onrender.com"
+          : undefined,
     },
   },
   cookies: {
     sessionToken: {
       attributes: {
         sameSite: "none",
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
         httpOnly: true,
         path: "/",
       },
@@ -64,7 +101,7 @@ export const auth = betterAuth({
     sessionData: {
       attributes: {
         sameSite: "none",
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
         httpOnly: true,
         path: "/",
       },
