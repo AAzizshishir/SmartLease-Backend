@@ -49,6 +49,7 @@ export const auth = betterAuth({
       secure: true,
       httpOnly: true,
       path: "/",
+      domain: "smartlease-backend.onrender.com",
     },
   },
   cookies: {
