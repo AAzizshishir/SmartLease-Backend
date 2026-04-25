@@ -33,33 +33,6 @@ export const auth = betterAuth({
       maxAge: 60 * 60 * 24 * 7,
     },
   },
-  // advanced: {
-  //   cookiePrefix: "better-auth",
-  //   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  //   useSecureCookies: process.env.NODE_ENV === "production",
-  //   crossSubDomainCookies: {
-  //     enabled: false,
-  //   },
-  //   disableCSRFCheck: true, // Allow requests without Origin header (Postman, mobile apps, etc.)
-  // },
-  // cookies: {
-  //   sessionToken: {
-  //     attributes: {
-  //       sameSite: "none",
-  //       secure: "true",
-  //       httpOnly: true,
-  //       path: "/",
-  //     },
-  //   },
-  //   sessionData: {
-  //     attributes: {
-  //       sameSite: "none",
-  //       secure: "true",
-  //       httpOnly: true,
-  //       path: "/",
-  //     },
-  //   },
-  // },
   advanced: {
     cookiePrefix: "better-auth",
     useSecureCookies: true,
@@ -68,7 +41,7 @@ export const auth = betterAuth({
     },
     disableCSRFCheck: true,
     defaultCookieAttributes: {
-      sameSite: "none", // ← এটা যোগ করো
+      sameSite: "none",
       secure: true,
       httpOnly: true,
       path: "/",

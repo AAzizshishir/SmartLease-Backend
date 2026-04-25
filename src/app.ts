@@ -53,6 +53,10 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.get("/", (req, res) => {
+  res.json({ message: "SmartLease Backend is running!" });
+});
+
 app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use("/api", indexRoutes);
 
