@@ -29,7 +29,6 @@ const createProperty = catchAsync(async (req: Request, res: Response) => {
 // get all properties
 const getAllProperties = catchAsync(async (req: Request, res: Response) => {
   const query = req.query;
-  console.log(query);
   const result = await propertyService.getAllProperties(query as IQueryParams);
 
   sendResponse(res, {
@@ -78,7 +77,6 @@ const updateProperty = catchAsync(async (req: Request, res: Response) => {
   const payload = {
     ...req.body,
   };
-  console.log(payload);
   const property = await propertyService.updateProperty(
     id as string,
     landlord_id as string,

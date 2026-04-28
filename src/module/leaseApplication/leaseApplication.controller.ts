@@ -85,7 +85,6 @@ const approveApplication = catchAsync(async (req: Request, res: Response) => {
     req.params.id as string,
     req.user!.id,
   );
-  console.log("from controller", result);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,

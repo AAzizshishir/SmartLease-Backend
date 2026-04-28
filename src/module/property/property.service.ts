@@ -217,7 +217,6 @@ const restoreProperty = async (id: string, landlord_id: string) => {
       landlord_id: true,
     },
   });
-  console.log(property);
 
   if (!property) {
     throw new AppError(
