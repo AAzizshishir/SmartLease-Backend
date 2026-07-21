@@ -20,7 +20,7 @@ export const auth = betterAuth({
     additionalFields: {
       role: {
         type: "string",
-        required: true,
+        required: false,
         default: Role.TENANT,
       },
       status: {
@@ -37,40 +37,6 @@ export const auth = betterAuth({
       maxAge: 60 * 60 * 24 * 7,
     },
   },
-
-  // advanced: {
-  //   cookiePrefix: "better-auth",
-  //   useSecureCookies: true,
-  //   crossSubDomainCookies: {
-  //     enabled: false,
-  //   },
-  //   disableCSRFCheck: true,
-  //   defaultCookieAttributes: {
-  //     sameSite: "none",
-  //     secure: true,
-  //     httpOnly: true,
-  //     path: "/",
-  //     domain: "smartlease-backend.onrender.com",
-  //   },
-  // },
-  // cookies: {
-  //   sessionToken: {
-  //     attributes: {
-  //       sameSite: "none",
-  //       secure: true,
-  //       httpOnly: true,
-  //       path: "/",
-  //     },
-  //   },
-  //   sessionData: {
-  //     attributes: {
-  //       sameSite: "none",
-  //       secure: true,
-  //       httpOnly: true,
-  //       path: "/",
-  //     },
-  //   },
-  // },
   advanced: {
     cookiePrefix: "better-auth",
     useSecureCookies: true,
