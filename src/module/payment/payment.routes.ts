@@ -33,6 +33,12 @@ router.get(
 );
 
 router.get(
+  "/allLandlordPayments",
+  authMiddleware(Role.LANDLORD),
+  paymentController.getAllLandlordPayments,
+);
+
+router.get(
   "/leases/:lease_id",
   authMiddleware(Role.LANDLORD),
   paymentController.getLeasePayments,

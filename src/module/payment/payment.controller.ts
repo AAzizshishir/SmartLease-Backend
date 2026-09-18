@@ -65,6 +65,21 @@ const markAsPaid = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllLandlordPayments = catchAsync(
+  async (req: Request, res: Response) => {
+    const landlordId = req.user!.id;
+    const result = await paymentService.getAllLandlordPayments(
+      landlordId as string,
+    );
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Payments fetched successfully",
+      data: result,
+    });
+  },
+);
+
 const getLeasePayments = catchAsync(async (req: Request, res: Response) => {
   const result = await paymentService.getLeasePayments(
     req.params.lease_id as string,
@@ -112,5 +127,6 @@ export const paymentController = {
   markAsPaid,
   getLeasePayments,
   getPaymentSummary,
+  getAllLandlordPayments,
   //   refundDeposit,
 };

@@ -270,6 +270,46 @@ const getLeasePayments = async (
   return result;
 };
 
+const getAllLandlordPayments = async (landlordId: string) => {
+  const payments = await prisma.payment.findMany({
+    where: {
+      lease: { landlord_id: landlordId },
+    },
+    include: {
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      lease: {
+        select: {
+          id: true,
+          monthly_rent: true,
+          unit: {
+            select: {
+              id: true,
+              unit_number: true,
+              property: {
+                select: {
+                  id: true,
+                  name: true,
+                  address: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      due_date: "desc",
+    },
+  });
+  return payments;
+};
+
 // Landlord — payment summary
 const getPaymentSummary = async (landlord_id: string) => {
   const now = new Date();
@@ -403,4 +443,5 @@ export const paymentService = {
   markAsPaid,
   getLeasePayments,
   getPaymentSummary,
+  getAllLandlordPayments,
 };
