@@ -49,9 +49,11 @@ const createProperty = async (
     );
   }
 
+  const { nearby_places, ...propertyData } = payload;
   const property = await prisma.property.create({
     data: {
-      ...payload,
+      ...propertyData,
+      nearby_places: { create: nearby_places },
       landlord_id,
     },
   });
@@ -81,6 +83,7 @@ const getAllProperties = async (query: IQueryParams) => {
       units: {
         where: { is_deleted: false },
       },
+      images: true,
     })
     .execute();
 
@@ -118,7 +121,11 @@ const getMyProperties = async (landlord_id: string, query: IQueryParams) => {
 const getPropertyById = async (id: string) => {
   const property = await prisma.property.findUnique({
     where: { id, is_deleted: false },
-    include: { units: { where: { is_deleted: false } }, images: true },
+    include: {
+      units: { where: { is_deleted: false } },
+      images: true,
+      nearby_places: true,
+    },
   });
   if (!property) {
     throw new AppError(StatusCodes.NOT_FOUND, "Property not found");
@@ -149,10 +156,17 @@ const updateProperty = async (
     );
   }
 
+  const { nearby_places, ...propertyData } = payload;
   const updated = await prisma.property.update({
     where: { id },
     data: {
-      ...payload,
+      ...propertyData,
+      ...(nearby_places !== undefined && {
+        nearby_places: {
+          deleteMany: {},
+          create: nearby_places,
+        },
+      }),
     },
   });
 

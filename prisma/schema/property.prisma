@@ -14,6 +14,8 @@ model Property {
   landlord            User              @relation(fields: [landlord_id], references: [id])
   units               Unit[]
   notices             Notice[]          @relation("PropertyNotices")
+  facilities          Facility[]
+  nearby_places       NearbyPlace[]
   images              PropertyImage[]
 
   created_at          DateTime          @default(now())
@@ -38,4 +40,48 @@ model PropertyImage {
 
   @@index([property_id])
   @@map("property_images")
+}
+
+ enum Facility {
+  parking
+  lift
+  cctv
+  generator
+  gym
+  rooftop
+  prayer_room
+  gas_line
+  water_supply
+  security_guard
+  fire_safety
+}
+
+enum NearbyPlaceType {
+  school
+  college
+  university
+  hospital
+  restaurant
+  shopping_mall
+  market
+  mosque
+  bus_stop
+  park
+  other
+}
+
+model NearbyPlace {
+  id           String          @id @default(uuid(7))
+  property_id  String
+  type         NearbyPlaceType
+  name         String
+  distance_km  Decimal         @db.Decimal(4, 1)
+
+  property     Property        @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  created_at   DateTime        @default(now())
+  updated_at   DateTime        @updatedAt
+
+  @@index([property_id])
+  @@map("nearby_places")
 }

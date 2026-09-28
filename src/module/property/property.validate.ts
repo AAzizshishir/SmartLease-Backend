@@ -1,4 +1,11 @@
 import z from "zod";
+import { Facility, NearbyPlaceType } from "../../generated/prisma/enums";
+
+const jsonArray = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess(
+    (v) => (typeof v === "string" ? JSON.parse(v) : v),
+    z.array(schema),
+  );
 
 // create property validation schema
 export const createPropertySchema = z.object({
@@ -22,6 +29,16 @@ export const createPropertySchema = z.object({
     .max(500, "Cannot exceed 500 units"),
 
   description: z.string().max(500, "Description too long").optional(),
+
+  facilities: jsonArray(z.enum(Facility)).default([]),
+
+  nearby_places: jsonArray(
+    z.object({
+      type: z.enum(NearbyPlaceType),
+      name: z.string().min(1),
+      distance_km: z.coerce.number().min(0),
+    }),
+  ).default([]),
 });
 
 // update property validation schema
